@@ -1,0 +1,23 @@
+{% extends 'facilities/layout.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <section class="mx-5">
+        <div style="width:500px" class="mx-auto shadow-sm p-3 mb-5 bg-white rounded">
+
+            <form action="" method="POST" class="mx-4">
+                <legend>Login</legend>
+                <hr>
+                {% csrf_token %}
+                {% for field in form %}
+                    <p> {{ field|as_crispy_field  }}</p>
+                {% endfor %}
+                <button type="submit" class="btn btn-outline-success">Login</button>
+                <p>Don't have an account? <a href="{% url 'register' %}">Signup here</a></p>
+            </form>
+
+
+        </div>
+
+    </section>
+{% endblock %}

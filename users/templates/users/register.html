@@ -1,0 +1,27 @@
+{% extends 'facilities/layout.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <section class="mx-5">
+        <div style="width:500px" class="mx-auto shadow-sm p-3 mb-5 bg-white rounded">
+
+
+          <form action="" method="POST">
+              {% csrf_token %}
+              <legend>Register here</legend>
+                <hr>
+              {% for field in form %}
+                    <div>
+                        <p>{{ field|as_crispy_field  }}</p>
+
+                        {% for error in field.errors %}
+                            <small style="color: red">{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+              <button type="submit" class="btn btn-outline-success">Register</button>
+          </form>
+        </div>
+    </section>
+{% endblock %}

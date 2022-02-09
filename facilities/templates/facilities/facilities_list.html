@@ -1,0 +1,64 @@
+{% extends 'facilities/layout.html' %}
+
+{% block content %}
+
+<section class="mx-4">
+    <a href="/facilities/add_facility" class="btn btn-outline-success pull-right">Add Facility</a>
+    <h2>Facilities Data</h2>
+
+    <table id="facilities_list" class="display">
+        <thead>
+            <tr>
+                <th>MFL Code</th>
+                <th>Facility Name</th>
+                <th>County</th>
+                <th>Sub County</th>
+                <th>Owner</th>
+                <th>Lat</th>
+                <th>Lon</th>
+                <th>SDP</th>
+                <th>SDP Agency</th>
+                <th>Implementation</th>
+                <th>EMR</th>
+                <th>EMR Status</th>
+                <th>HTS Use</th>
+                <th>HTS Deployment</th>
+                <th>HTS Staus</th>
+                <th>IL Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in facilitiesdata%}
+            <tr>
+                <td><a href="/facilities/update_facility/{{data.id}}">{{data.mfl_code}}<i class="fas fa-check"></i></a></td>
+                <td>{{data.name}}</td>
+                <td>{{data.county.name}}</td>
+                <td>{{data.sub_county.name}}</td>
+                <td>{{data.owner}}</td>
+                <td>{{data.lat}}</td>
+                <td>{{data.lon}}</td>
+                <td>{{data.partner}}</td>
+                <td>{{data.agency}}</td>
+                <td>{% for i in data.implementation %}
+                        {{ i }}
+                    {% endfor %}
+                </td>
+                <td>{{data.emr_type}}</td>
+                <td>{{data.emr_status}}</td>
+                <td>{{data.hts_use}}</td>
+                <td>{{data.hts_deployment}}</td>
+                <td>{{data.hts_status}}</td>
+                <td>{{data.il_status}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<script>
+    $(document).ready( function () {
+        $('#facilities_list').DataTable();
+    } );
+</script>
+
+{% endblock %}

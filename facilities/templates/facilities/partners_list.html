@@ -1,0 +1,26 @@
+{% extends 'facilities/layout.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <section class="mx-5">
+         <table id="facilities_list" class="table striped ">
+            <thead>
+                <tr>
+                    <th>Partner name</th>
+                    <th>Agency</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in partners_data%}
+                <tr>
+                    <td>{{data.name}} </td>
+                    <td><a href="#">{{data.agency.name}} <i class="fas fa-edit"></i></a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+         </table>
+
+
+
+    </section>
+{% endblock %}
