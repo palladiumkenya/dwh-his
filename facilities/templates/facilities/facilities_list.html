@@ -18,13 +18,13 @@
                 <th>Lon</th>
                 <th>SDP</th>
                 <th>SDP Agency</th>
-                <th>Implementation</th>
+                <!--<th>Implementation</th>-->
                 <th>EMR</th>
                 <th>EMR Status</th>
-                <th>HTS Use</th>
+                <!--<th>HTS Use</th>
                 <th>HTS Deployment</th>
                 <th>HTS Staus</th>
-                <th>IL Status</th>
+                <th>IL Status</th>-->
             </tr>
         </thead>
         <tbody>
@@ -39,16 +39,16 @@
                 <td>{{data.lon}}</td>
                 <td>{{data.partner}}</td>
                 <td>{{data.agency}}</td>
-                <td>{% for i in data.implementation %}
+                <!--<td>{% for i in data.implementation %}
                         {{ i }}
                     {% endfor %}
-                </td>
+                </td>-->
                 <td>{{data.emr_type}}</td>
                 <td>{{data.emr_status}}</td>
-                <td>{{data.hts_use}}</td>
+                <!--<td>{{data.hts_use}}</td>
                 <td>{{data.hts_deployment}}</td>
                 <td>{{data.hts_status}}</td>
-                <td>{{data.il_status}}</td>
+                <td>{{data.il_status}}</td>-->
             </tr>
             {% endfor %}
         </tbody>

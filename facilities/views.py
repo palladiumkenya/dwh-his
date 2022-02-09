@@ -120,7 +120,7 @@ def add_facility_data(request):
             mhealth_info.save()
 
             # Redirect to home (/)
-            return HttpResponseRedirect('/facilities')
+            return HttpResponseRedirect('/home')
         else:
             # The supplied form contained errors - just print them to the terminal.
             print(form.errors)
@@ -156,57 +156,45 @@ def update_facility_data(request, facility_id):
             # Save the new category to the database.
             Facility_Info.objects.filter(pk=facility_id).update(mfl_code = form.cleaned_data['mfl_code'],
                 name = form.cleaned_data['name'],
-                county = form.cleaned_data['county'],
-                sub_county = form.cleaned_data['sub_county'],
-                owner = int(form.cleaned_data['owner']),
-                partner = int(form.cleaned_data['partner']),
+                county = Counties.objects.get(pk=int(form.cleaned_data['county'])),
+                sub_county = Sub_counties.objects.get(pk=int(form.cleaned_data['sub_county'])),
+                owner = Owner.objects.get(pk=int(form.cleaned_data['owner'])),
+                partner = Partners.objects.get(pk=int(form.cleaned_data['partner'])),
                 #facilitydata.agency = facilitydata.partner.agency.name
                 lat = form.cleaned_data['lat'],
                 lon = form.cleaned_data['lon'],
-                #emr_type = int(form.cleaned_data['emr_type']),
-                #emr_status = int(form.cleaned_data['emr_status']),
-                #hts_use_and_deployment = int(form.cleaned_data['hts_use']),
-                #facilitydata.deployment = facilitydata.hts_use_and_deployment.deployment)
-                #hts_status = int(form.cleaned_data['hts_status']),
-                #il_status = int(form.cleaned_data['il_status']),
             )
 
             Implementation_type.objects.filter(facility_info=facility_id).update(
-                ct=form.cleaned_data['CT'],
-                hts = form.cleaned_data['HTS'],
-                il = form.cleaned_data['KP'],
-                kp = form.cleaned_data['IL']
+                ct=form.cleaned_data['CT'], kp=form.cleaned_data['KP'],
+                hts=form.cleaned_data['HTS'], il=form.cleaned_data['IL']
             )
 
             EMR_Info.objects.filter(facility_info=facility_id).update(
-                type=int(form.cleaned_data['emr_type']),
+                type=EMR_type.objects.get(pk=int(form.cleaned_data['emr_type'])),
                 status=form.cleaned_data['emr_status'],
-                ovc=form.cleaned_data['ovc_offered'],
-                otz=form.cleaned_data['otz_offered'],
-                prep=form.cleaned_data['prep_offered'],
-                tb=form.cleaned_data['tb_offered'],
+                ovc=form.cleaned_data['ovc_offered'], otz=form.cleaned_data['otz_offered'],
+                prep=form.cleaned_data['prep_offered'], tb=form.cleaned_data['tb_offered'],
             )
 
             HTS_Info.objects.filter(facility_info=facility_id).update(
+                hts_use_name=HTS_use_type.objects.get(pk=int(form.cleaned_data['hts_use'])),
                 status=form.cleaned_data['hts_status'],
-                hts_use_name=int(form.cleaned_data['hts_use']),
-                deployment=int(form.cleaned_data['hts_deployment']),
+                deployment=HTS_deployment_type.objects.get(pk=int(form.cleaned_data['hts_deployment'])),
             )
 
             IL_Info.objects.filter(facility_info=facility_id).update(
+                registration_ie=form.cleaned_data['registration_ie'], pharmacy_ie=form.cleaned_data['pharmacy_ie'],
                 status=form.cleaned_data['il_status'],
-                registration_ie=form.cleaned_data['registration_ie'],
-                pharmacy_ie=form.cleaned_data['pharmacy_ie'],
             )
 
             MHealth_Info.objects.filter(facility_info=facility_id).update(
-                nishauri=form.cleaned_data['ovc_offered'],
-                mshauri=form.cleaned_data['mshauri'],
-                c4c=form.cleaned_data['c4c']
+                mshauri=form.cleaned_data['mshauri'], c4c=form.cleaned_data['c4c'],
+                nishauri=form.cleaned_data['nishauri'],
             )
 
             # Redirect to home (/)
-            return HttpResponseRedirect('/facilities')
+            return HttpResponseRedirect('/home')
         else:
             # The supplied form contained errors - just print them to the terminal.
             print(form.errors)
