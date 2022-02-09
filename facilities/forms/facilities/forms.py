@@ -63,9 +63,9 @@ class Facility_Data_Form(forms.Form):
     tb_offered = forms.ChoiceField(label='TB', required=False,
                                     choices=(('Yes', 'Yes'), ('No', 'No'), ('N/A', 'N/A')), widget=forms.RadioSelect())
     # mhealth info
-    mshauri = forms.BooleanField(label='Ushauri', required=False)
+    mshauri = forms.BooleanField(label='Mshauri', required=False)
     nishauri = forms.BooleanField(label='Nishauri', required=False)
-    c4c = forms.BooleanField(label='Mlab', required=False)
+    c4c = forms.BooleanField(label='C4C', required=False)
 
     def __init__(self, *args, **kwargs):
         super(Facility_Data_Form, self).__init__(*args, **kwargs)
