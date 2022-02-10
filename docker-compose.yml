@@ -36,6 +36,8 @@ services:
         python manage.py makemigrations --merge
         sleep 10
         python manage.py migrate --noinput
+        sleep 10
+        python manage.py loaddata newdata.json
         sleep 40
         python manage.py runserver 0.0.0.0:8000
 
