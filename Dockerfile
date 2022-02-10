@@ -1,7 +1,3 @@
-FROM mysql:5.6
-COPY setup.sh /mysql/setup.sh
-COPY mfldbdump.sql /mysql/mfldbdump.sql
-RUN /mysql/setup.sh
 
 # base image
 FROM python:3.10
