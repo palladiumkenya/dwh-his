@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.6
+    ports:
+      - '3307:3306'
+    environment:
+       MYSQL_DATABASE: 'mfl_interface_db'
+       MYSQL_PASSWORD: 'DodgerMXT123'
+       MYSQL_ROOT_PASSWORD: 'DodgerMXT123'
+       MYSQL_PORT: '3306'
+    volumes:
+      - .mfldbdump.sql:/var/opt/mssql
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "dwh-his-db-1", '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD']
+      timeout: 20s
+      retries: 10
+
+  web:
+    build: .
+    image: dwh_his_interface
+    volumes:
+      - .:/project
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    links:
+      - db
+    command:
+      - /bin/bash
+      - -c
+      - |
+        sleep 10
+        python manage.py makemigrations --merge
+        sleep 10
+        python manage.py migrate --noinput
+        sleep 40
+        python manage.py runserver 0.0.0.0:8000
+

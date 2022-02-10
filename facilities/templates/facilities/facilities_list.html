@@ -3,6 +3,15 @@
 {% block content %}
 
 <section class="mx-4">
+    {% if messages %}
+        {% for message in messages %}
+            <div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %} role="alert" id="message_alert">
+                 {{ message }}
+                <i class="fa-solid fa-xmark pull-right" onclick="$('#message_alert').hide();"></i>
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <a href="/facilities/add_facility" class="btn btn-outline-success pull-right">Add Facility</a>
     <h2>Facilities Data</h2>
 
@@ -25,12 +34,13 @@
                 <th>HTS Deployment</th>
                 <th>HTS Staus</th>
                 <th>IL Status</th>-->
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for data in facilitiesdata%}
             <tr>
-                <td><a href="/facilities/update_facility/{{data.id}}">{{data.mfl_code}}<i class="fas fa-check"></i></a></td>
+                <td>{{data.mfl_code}}</td>
                 <td>{{data.name}}</td>
                 <td>{{data.county.name}}</td>
                 <td>{{data.sub_county.name}}</td>
@@ -49,6 +59,9 @@
                 <td>{{data.hts_deployment}}</td>
                 <td>{{data.hts_status}}</td>
                 <td>{{data.il_status}}</td>-->
+                <td><a href="/facilities/update_facility/{{data.id}}"><i class="fa-solid fa-pen-to-square text-success"></i></a>
+                    <i class="fa-solid fa-trash-can text-danger"></i>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
