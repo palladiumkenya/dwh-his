@@ -1,33 +1,38 @@
 version: '3'
 
+
 services:
-  db:
+  mysql:
+    restart: "always"
     image: mysql:5.6
-    ports:
-      - '3307:3306'
+    command: "mysqld --character-set-server=utf8 --collation-server=utf8_general_ci"
     environment:
-       MYSQL_DATABASE: 'mfl_interface_db'
-       MYSQL_PASSWORD: 'DodgerMXT123'
-       MYSQL_ROOT_PASSWORD: 'DodgerMXT123'
-       MYSQL_PORT: '3306'
-    volumes:
-      - .mfldbdump.sql:/var/opt/mssql
+      MYSQL_DATABASE: ${MYSQL_DB:-mfl_interface_db}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-DodgerMXT123}
+      MYSQL_USER: ${MYSQL_USER:-his}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-DodgerMXT123}
     healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "dwh-his-db-1", '-u', 'root', '-p$$MYSQL_ROOT_PASSWORD']
-      timeout: 20s
-      retries: 10
+      test: "exit 0"
 
   web:
     build: .
     image: dwh_his_interface
     volumes:
-      - .:/project
-    ports:
-      - "8000:8000"
+      - .:/project    
     depends_on:
-      - db
-    links:
-      - db
+      - mysql
+    ports:
+      - "8100:8000"
+    environment:
+      DB_DATABASE: ${MYSQL_DB:-mfl_interface_db}
+      DB_HOST: dwh-his_mysql_1
+      DB_USERNAME: ${MYSQL_USER:-his}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-DodgerMXT123}
+      DB_CREATE_TABLES: 'true'
+      DB_AUTO_UPDATE: 'true'
+      MODULE_WEB_ADMIN: 'true'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8100/"]
     command:
       - /bin/bash
       - -c
@@ -39,5 +44,4 @@ services:
         sleep 10
         python manage.py loaddata newdata.json
         sleep 40
-        python manage.py runserver 0.0.0.0:8000
-
+        python manage.py runserver 0.0.0.0:8000      
