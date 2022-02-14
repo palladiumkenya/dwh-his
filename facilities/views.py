@@ -1,14 +1,15 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-import urllib.request, json
-import requests
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 import uuid
 import mysql.connector
+from django.contrib.auth.decorators import login_required
+
 from .models import *
 from .forms.facilities.forms import *
-from django.contrib.auth.decorators import login_required
+
 
 
 def index(request):
@@ -58,6 +59,7 @@ def index(request):
 
         facilitiesdata.append(dataObj)
 
+    #messages.add_message(request, messages.SUCCESS, 'Welcome to DWH-HIS Portal')
     return render(request, 'facilities/facilities_list.html', {'facilitiesdata': facilitiesdata})
 
 
@@ -120,6 +122,7 @@ def add_facility_data(request):
             mhealth_info.save()
 
             # Redirect to home (/)
+            messages.add_message(request, messages.SUCCESS, 'Facility was successfully added and can be viewed below!')
             return HttpResponseRedirect('/home')
         else:
             # The supplied form contained errors - just print them to the terminal.
@@ -128,6 +131,14 @@ def add_facility_data(request):
         # if a GET (or any other method) we'll create a blank form
     else:
         form = Facility_Data_Form()
+        #form['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
+        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
+        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
+        form.fields['owner'].choices =((i.id, i.name) for i in Owner.objects.all())
+        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
+        form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
+        form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
+        form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
 
     return render(request, 'facilities/update_facility.html', {'form': form, "title":"Add Facility"})
 
@@ -150,7 +161,13 @@ def update_facility_data(request, facility_id):
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = Facility_Data_Form(request.POST)
-        # check whether it's valid:
+        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
+        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
+        form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
+        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
+        form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
+        form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
+        form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
 
         if form.is_valid():
             # Save the new category to the database.
@@ -194,6 +211,7 @@ def update_facility_data(request, facility_id):
             )
 
             # Redirect to home (/)
+            messages.add_message(request, messages.SUCCESS, 'Facility was successfully updated. View changes below!')
             return HttpResponseRedirect('/home')
         else:
             # The supplied form contained errors - just print them to the terminal.
@@ -232,6 +250,13 @@ def update_facility_data(request, facility_id):
             'hts_status': hts_info.status,
         }
         form = Facility_Data_Form(initial=initial_data)
+        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
+        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
+        form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
+        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
+        form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
+        form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
+        form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
 
     return render(request, 'facilities/update_facility.html', {'facilitydata': facilitydata, 'form': form, "title":"Update Facility data"})
 
