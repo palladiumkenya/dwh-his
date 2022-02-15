@@ -43,6 +43,12 @@ class HTS_deployment_type(models.Model):
 class Owner(models.Model):
     name = models.CharField(max_length=100)
 
+class EMR_modules(models.Model):
+    name = models.CharField(max_length=100)
+
+class IL_modules(models.Model):
+    name = models.CharField(max_length=100)
+
 
 class Facility_Info(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -92,9 +98,12 @@ class IL_Info(models.Model):
 class MHealth_Info(models.Model):
     # consider Boolean field
     #status = models.CharField(max_length=100)
-    mshauri = models.BooleanField(default=False)
-    c4c = models.BooleanField(default=False)
-    nishauri = models.BooleanField(default=False)
+    Ushauri = models.BooleanField(default=False)
+    C4C = models.BooleanField(default=False)
+    Nishauri = models.BooleanField(default=False)
+    Mlab = models.BooleanField(default=False)
+    ART_Directory = models.BooleanField(default=False)
+    Psurvey = models.BooleanField(default=False)
     facility_info = models.ForeignKey(Facility_Info, on_delete=models.CASCADE)
 
 

@@ -55,7 +55,7 @@ def index(request):
         dataObj["il_status"] = il_info.status
         dataObj["il_registration_ie"] = il_info.registration_ie
         dataObj["il_pharmacy_ie"] = il_info.pharmacy_ie
-        dataObj["mhealth_ovc"] = mhealth_info.nishauri
+        dataObj["mhealth_ovc"] = mhealth_info.Nishauri
 
         facilitiesdata.append(dataObj)
 
@@ -116,8 +116,8 @@ def add_facility_data(request):
             il_info.save()
 
             # save MHealth info
-            mhealth_info = MHealth_Info(mshauri=form.cleaned_data['mshauri'], c4c=form.cleaned_data['c4c'],
-                               nishauri=form.cleaned_data['nishauri'],
+            mhealth_info = MHealth_Info(Ushauri=form.cleaned_data['ushauri'], C4C=form.cleaned_data['c4c'],
+                               Nishauri=form.cleaned_data['nishauri'],
                                         facility_info=Facility_Info.objects.get(pk=unique_facility_id))
             mhealth_info.save()
 
@@ -206,8 +206,8 @@ def update_facility_data(request, facility_id):
             )
 
             MHealth_Info.objects.filter(facility_info=facility_id).update(
-                mshauri=form.cleaned_data['mshauri'], c4c=form.cleaned_data['c4c'],
-                nishauri=form.cleaned_data['nishauri'],
+                Ushauri=form.cleaned_data['ushauri'], C4C=form.cleaned_data['c4c'],
+                Nishauri=form.cleaned_data['nishauri'],
             )
 
             # Redirect to home (/)
@@ -237,9 +237,9 @@ def update_facility_data(request, facility_id):
             'otz_offered': emr_info.otz,
             'tb_offered': emr_info.tb,
             'prep_offered': emr_info.prep,
-            'mshauri': mhealth_info.mshauri,
-            'nishauri': mhealth_info.nishauri,
-            'c4c': mhealth_info.c4c,
+            'ushauri': mhealth_info.Ushauri,
+            'nishauri': mhealth_info.Nishauri,
+            'c4c': mhealth_info.C4C,
             'il_status': il_info.status,
             'registration_ie': il_info.registration_ie,
             'pharmacy_ie': il_info.pharmacy_ie,
@@ -262,6 +262,16 @@ def update_facility_data(request, facility_id):
 
 def partners(request):
     partners_data = Partners.objects.prefetch_related('agency').all()
+
+    if request.method == 'POST':
+        try:
+            Partners.objects.filter(pk=int(request.POST.get('partner_id'))) \
+                                    .update(name=request.POST.get('partner'),
+                                        agency=SDP_agencies.objects.get(pk=int(request.POST.get('agency'))))
+            messages.add_message(request, messages.SUCCESS, 'Updated Partners nd agencies data. View changes below!')
+        except Exception as e:
+            print(e)
+            messages.add_message(request, messages.ERROR, 'An error occured. Please try again!')
 
     return render(request, 'facilities/partners_list.html', {'partners_data': partners_data})
 
@@ -298,3 +308,17 @@ def get_partners_list(request):
         partners_list.append(partnerObj)
 
     return JsonResponse(partners_list, safe=False)
+
+
+def get_agencies_list(request):
+    agencies = SDP_agencies.objects.all()
+
+    agencies_list =[]
+    for row in agencies:
+        agencyObj = {}
+        agencyObj['id'] = row.id
+        agencyObj['name'] = row.name
+
+        agencies_list.append(agencyObj)
+
+    return JsonResponse(agencies_list, safe=False)

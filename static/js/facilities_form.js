@@ -61,3 +61,16 @@ $("#id_partner").change(function(){
        }
     });
 });
+
+
+$("#id_CT").click(function(){
+    $("#EMR_info").slideToggle();
+});
+
+$("#id_HTS").click(function(){
+    $("#HTS_info").slideToggle();
+});
+
+$("#id_IL").click(function(){
+    $("#IL_info").slideToggle();
+});

@@ -3,14 +3,7 @@
 {% block content %}
 
 <section class="mx-4">
-    {% if messages %}
-        {% for message in messages %}
-            <div {% if message.tags %} class="alert alert-{{ message.tags }}"{% endif %} role="alert" id="message_alert">
-                 {{ message }}
-                <i class="fa-solid fa-xmark pull-right" onclick="$('#message_alert').hide();"></i>
-            </div>
-        {% endfor %}
-    {% endif %}
+
 
     <a href="/facilities/add_facility" class="btn btn-outline-success pull-right">Add Facility</a>
     <h2>Facilities Data</h2>

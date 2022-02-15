@@ -24,51 +24,68 @@
 </head>
 <body style="background-color:#f4f6fa" class="mb-5">
 
-<header class="shadow p-1 mb-5" style="background-color:#2f4050">
-  <!-- Navbar -->
-  <nav class="navbar navbar-expand-lg" style="background-color:#2f4050">
-    <div class="container-fluid">
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-mdb-toggle="collapse"
-        data-mdb-target="#navbarExample01"
-        aria-controls="navbarExample01"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarExample01">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item active" style="background-color:#0e2031">
-            <a class="nav-link text-white" style="" aria-current="page" href="/home">MFL INTERFACE</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white" href="/facilities/partners">Partners</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#"></a>
-          </li>
-        </ul>
-          {% if user.is_authenticated %}
-            <p class="text-white">Welcome, {{user.username}}</p>
-          {% else %}
-                <a href="/user/login" class="btn green_bg_color text-white">Login</a>
-          {% endif %}
+    <header class="shadow p-1 mb-5" style="background-color:#2f4050">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg" style="background-color:#2f4050">
+        <div class="container-fluid">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-mdb-toggle="collapse"
+            data-mdb-target="#navbarExample01"
+            aria-controls="navbarExample01"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarExample01">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item active" style="background-color:#0e2031">
+                <a class="nav-link text-white" style="" aria-current="page" href="/home">MFL INTERFACE</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link text-white" href="/facilities/partners">Partners</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#"></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#"></a>
+              </li>
+            </ul>
+              {% if user.is_authenticated %}
+                <p class="text-white">Welcome, {{user.username}}</p>
+              {% else %}
+                    <a href="/user/login" class="btn green_bg_color text-white">Login</a>
+              {% endif %}
 
-      </div>
-    </div>
-  </nav>
-  <!-- Navbar -->
-</header>
+          </div>
+        </div>
+      </nav>
+      <!-- Navbar -->
+    </header>
 
-{% block content %}
+    {% if messages %}
+        {% for message in messages %}
+            <div {% if message.tags %} class="alert_message alert alert-{{ message.tags }} {%if message.tags == 'error'%}alert-danger{% endif %}"
+                 {% endif %} role="alert" id="message_alert">
+                {%if message.tags == 'warning'%}
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                {% elif message.tags == 'error' %}
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                {% endif%}
+                <!-- actual warning message below -->
+                {{ message }}
+                <i class="fa-solid fa-xmark pull-right" onclick="$('#message_alert').hide();"></i>
+            </div>
+        {% endfor %}
+    {% endif %}
 
-{% endblock %}
+    <!-- ////////////////// content for the various pages goes here //////////////////// -->
+    {% block content %}
+
+    {% endblock %}
 
 </body>
 </html>

@@ -6,3 +6,12 @@
 .green_bg_color{
     background-color:#1ab394 !important;
 }
+
+.alert_message{
+    width:80%;
+    margin:auto;
+}
+
+.hide_element{
+    display:none;
+}

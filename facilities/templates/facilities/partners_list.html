@@ -6,15 +6,35 @@
          <table id="facilities_list" class="table striped ">
             <thead>
                 <tr>
-                    <th>Partner name</th>
                     <th>Agency</th>
+                    <th>Partner name</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for data in partners_data%}
                 <tr>
-                    <td>{{data.name}} </td>
-                    <td><a href="#">{{data.agency.name}} <i class="fas fa-edit"></i></a></td>
+                    <form action="" method="post" class="form-control">
+                        {% csrf_token %}
+                        <td id="agency_container">
+                            <input type="text" value="{{data.id}}" name="partner_id" hidden>
+                            <!--<input type="text" value="{{data.agency.name}}" name="agency" id="agency-{{data.id}}" readonly>-->
+                            <select name="agency" id="agency-{{data.id}}" disabled class="form-control">
+                                <option value="{{data.agency.id}}">{{data.agency.name}}</option>
+                            </select>
+                        </td>
+
+                        <td><input type="text" value="{{data.name}}" name="partner" id="partner-{{data.id}}" readonly class="form-control"> </td>
+
+                        <td>
+                            <i id="remove_readonly_button-{{data.id}}" onclick="show_agencies({{data.id}}, {{data.agency.id}});"
+                               class="fa-solid fa-pen-to-square text-success">
+                            </i>
+                            <input id="update-{{data.id}}" type="submit" value="Update" class="btn btn-outline-success"
+                                style="display:none;">
+                            <i class="fa-solid fa-trash-can text-danger"></i>
+                        </td>
+                    </form>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -23,4 +43,29 @@
 
 
     </section>
+
+<script>
+    function show_agencies(field_id, value){
+        $('#agency-'+field_id).removeAttr('disabled');
+        $('#partner-'+field_id).removeAttr('readonly');
+        $('#update-'+field_id).show();
+        $('#remove_readonly_button-'+field_id).hide();
+
+        $.getJSON('http://127.0.0.1:8000/facilities/get_agencies_list', function(data) {
+
+            $('#agency-'+field_id).empty();
+
+            $.each( data, function(index, item) {
+                console.log(item['name'])
+                if(item['id'] == value) {
+                    $('#agency-' + field_id).append("<option value=" + item['id'] + " selected>" + item['name'] + "</option>");
+                }else{
+                    $('#agency-' + field_id).append("<option value=" + item['id'] + ">" + item['name'] + "</option>");
+                }
+            });
+
+       });
+    }
+
+</script>
 {% endblock %}

@@ -10,42 +10,42 @@
                 <div class="col-md-2">
                     <h6 id="facility_toggle" class="green_text_color">Facility Information</h6>
                 </div>
-                <div id="facility" class="row section mb-4 col-md-10">
-                  <div class="form-group col-md-2 mb-4">
+                <div id="facility" class="row section mb-4 col-md-8">
+                    <b>Facility Information</b>
+                  <div class="form-group col-md-3 mb-4">
                     {{ form.mfl_code|as_crispy_field }}
                   </div>
-                  <div class="form-group col-md-4 mb-4">
+                  <div class="form-group col-md-5 mb-4">
                     {{ form.name|as_crispy_field }}
                   </div>
                     <div class="form-group col-md-4 mb-4">
                     {{ form.owner|as_crispy_field }}
                   </div>
 
-                  <div class="form-group col-md-3 mb-4">
+                  <div class="form-group col-md-3 mb-3">
                         {{ form.county|as_crispy_field }}
                     </div>
-                    <div class="form-group col-md-3 mb-4">
+                    <div class="form-group col-md-3 mb-3">
                         {{ form.sub_county|as_crispy_field }}
                     </div>
-                    <div class="form-group col-md-3 mb-4">
+                    <div class="form-group col-md-3 mb-2">
                         {{ form.lat|as_crispy_field }}
                     </div>
-                    <div class="form-group col-md-3 mb-4">
+                    <div class="form-group col-md-3 mb-2">
                         {{ form.lon|as_crispy_field }}
                     </div>
 
-                    <div class="form-group col-md-6 mb-4">
+                    <div class="form-group col-md-6 mb-5">
                         {{ form.agency|as_crispy_field }}
                     </div>
-                    <div class="form-group col-md-6 mb-4">
+                    <div class="form-group col-md-6 mb-5">
                         {{ form.partner|as_crispy_field }}
                     </div>
 
                     <div class="form-group col-md-4 mb-4">
-                        <label for="CT" class=" requiredField">Implementation</label>
+                        <b>Implementation</b>
                         <div class="d-flex justify-content-between">
                             {{ form.CT|as_crispy_field }}
-                            {{ form.KP|as_crispy_field }}
                             {{ form.HTS|as_crispy_field }}
                             {{ form.IL|as_crispy_field }}
                         </div>
@@ -53,89 +53,109 @@
                 </div>
             </div>
 
+            <div class="hide_element" id="EMR_info">
+                <div class="row  mb-5" >
+                    <div class="col-md-2">
+                        <h6  class="green_text_color">EMR Information</h6>
+                    </div>
+                    <div id="EMR" class="row section mb-4 col-md-10">
+                        <b>EMR Information</b>
+                        <div class="form-group col-md-4 mb-4">
+                            {{ form.emr_type|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-md-4 mb-4">
+                            {{ form.emr_status|as_crispy_field }}
+                        </div>
 
-            <div class="row  mb-5">
-                <div class="col-md-2">
-                    <h6 id="EMR_toggle" class="green_text_color">EMR Information</h6>
-                </div>
-                <div id="EMR" class="row section mb-4 col-md-10">
-                    <div class="form-group col-md-4 mb-4">
-                        {{ form.emr_type|as_crispy_field }}
-                    </div>
-                    <div class="form-group col-md-4 mb-4">
-                        {{ form.emr_status|as_crispy_field }}
-                    </div>
-                    <div class="form-group col-md-4 mb-4"></div>
-
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.ovc_offered|as_crispy_field }}
-                    </div>
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.otz_offered|as_crispy_field }}
-                    </div>
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.prep_offered|as_crispy_field }}
-                    </div>
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.tb_offered|as_crispy_field }}
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="row  mb-5">
-                <div class="col-md-2">
-                    <h6 id="HTS_toggle" class="green_text_color">HTS Information</h6>
-                </div>
-                <div id="HTS" class="row section mb-4 col-md-10">
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.hts_use|as_crispy_field }}
-                    </div>
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.hts_deployment|as_crispy_field }}
-                    </div>
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.hts_status|as_crispy_field }}
+                        <div class="form-group col-md-6 mb-0">
+                            <b>EMR modules</b>
+                            <div class="d-flex justify-content-between">
+                                {{ form.ovc_offered|as_crispy_field }}
+                                {{ form.otz_offered|as_crispy_field }}
+                                {{ form.prep_offered|as_crispy_field }}
+                                {{ form.tb_offered|as_crispy_field }}
+                                {{ form.mnch_offered|as_crispy_field }}
+                                {{ form.kp_offered|as_crispy_field }}
+                                {{ form.lab_man_offered|as_crispy_field }}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="row mb-5">
-                <div class="col-md-2">
-                    <h6 id="IL_toggle" class="green_text_color">IL Information</h6>
-                </div>
-                <div id="IL" class="row section mb-4 col-md-10">
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.il_status|as_crispy_field }}
+            <div id="MHealth_info">
+                <div class="row mb-5">
+                    <div class="col-md-2">
+                        <h6 id="MHealth_toggle" class="green_text_color">MHealth Information</h6>
                     </div>
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.registration_ie|as_crispy_field }}
-                    </div>
-                    <div class="form-group col-md-3 mb-0">
-                        {{ form.pharmacy_ie|as_crispy_field }}
-                    </div>
-                </div>
-            </div>
-
-
-            <div class="row mb-5">
-                <div class="col-md-2">
-                    <h6 id="MHealth_toggle" class="green_text_color">MHealth Information</h6>
-                </div>
-                <div id="MHealth" class="row section mb-4 col-md-4">
-                    <div class="d-flex justify-content-between">
-                            {{ form.mshauri|as_crispy_field }}
+                    <div  class="row section mb-4 col-md-7">
+                        <b>MHealth Information</b>
+                        <div class="d-flex justify-content-between">
+                            {{ form.ushauri|as_crispy_field }}
                             {{ form.nishauri|as_crispy_field }}
                             {{ form.c4c|as_crispy_field }}
+                            {{ form.mlab|as_crispy_field }}
+                            {{ form.art|as_crispy_field }}
+                            {{ form.psurvey|as_crispy_field }}
                         </div>
+                    </div>
                 </div>
             </div>
+
+            <div class="hide_element" id="HTS_info">
+                <div class="row  mb-5">
+                    <div class="col-md-2">
+                        <h6  class="green_text_color">HTS Information</h6>
+                    </div>
+                    <div id="HTS" class="row section mb-4 col-md-8">
+                        <b>HTS Information</b>
+                        <div class="form-group col-md-3 mb-0">
+                            {{ form.hts_use|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-md-3 mb-0">
+                            {{ form.hts_deployment|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-md-3 mb-0">
+                            {{ form.hts_status|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hide_element" id="IL_info">
+                <div class="row mb-5">
+                    <div class="col-md-2">
+                        <h6  class="green_text_color">IL Information</h6>
+                    </div>
+                    <div id="IL" class="row section mb-4 col-md-8">
+                        <b>IL Information</b>
+                        <div class="form-group col-md-3 mb-0">
+                            {{ form.registration_ie|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-md-3 mb-0">
+                            {{ form.pharmacy_ie|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-md-3 mb-0">
+                            {{ form.il_status|as_crispy_field }}
+                        </div>
+                        <div class="form-group col-md-5 mb-0">
+                            <b>IL Modules</b>
+                            <div class="d-flex justify-content-between">
+                                {{ form.mlab|as_crispy_field }}
+                                {{ form.field_3PM|as_crispy_field }}
+                                {{ form.c4c|as_crispy_field }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <input type="submit" value="Submit" class="btn btn-outline-success">
         </form>
     </section>
 
     {% load static %}
-    <script src="{% static 'js/facilities_form.js' %}"></script>>
+    <script src="{% static 'js/facilities_form.js' %}"></script>
 
 {% endblock %}
