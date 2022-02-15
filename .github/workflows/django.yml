@@ -23,7 +23,6 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install Dependencies
       run: |
-        pip install django-crispy-forms
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Run Tests
