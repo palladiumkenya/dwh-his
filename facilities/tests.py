@@ -36,13 +36,12 @@ class LoginRequiredRedirectsViewTest(TestCase):
             response = self.client.get('/facilities/partners')
             self.assertRedirects(response, '/user/login/?next=/facilities/partners')
 
-    def test_partners_redirect(self):
+    def test_update_facility_redirect(self):
         #self.assertRedirects(response, '/home', status_code=301, target_status_code=301)
         with self.settings(LOGIN_URL='/user/login/'):
-            response = self.client.get('/facilities/partners')
-            self.assertRedirects(response, '/user/login/?next=/facilities/partners')
-
-
+            url = '/facilities/update_facility/'+str(uuid.uuid4())
+            response = self.client.get(url)
+            self.assertRedirects(response, '/user/login/?next='+url)
 
 
 class FacilityModelTestCase(TestCase):
