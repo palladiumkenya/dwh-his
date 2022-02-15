@@ -1,9 +1,10 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from .models import *
 
 class FacilitiesListViewTest(TestCase):
-    def test_view_uses_correct_template(self):
+    def test_homepage_view(self):
         response = self.client.get('/home')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'facilities/facilities_list.html')
@@ -13,8 +14,39 @@ class FacilitiesListViewTest(TestCase):
         response = self.client.get('/facilities/sub_counties')
         self.assertEqual(response.status_code, 200)
 
+    def test_partners_lists_all_authors(self):
+        # check url is working fine
+        response = self.client.get('/facilities/get_partners_list')
+        self.assertEqual(response.status_code, 200)
+
+    def test_agencies_lists_all_authors(self):
+        # check url is working fine
+        response = self.client.get('/facilities/get_agencies_list')
+        self.assertEqual(response.status_code, 200)
+
 
 class LoginRequiredRedirectsViewTest(TestCase):
-    def test_redirect_if_not_logged_in(self):
-        response = self.client.get('/facilities/add_facility')
-        self.assertRedirects(response, '/user/login')
+    def test_add_facility_redirect(self):
+        with self.settings(LOGIN_URL='/user/login/'):
+            response = self.client.get('/facilities/add_facility')
+            self.assertRedirects(response, '/user/login/?next=/facilities/add_facility')
+
+    def test_partners_redirect(self):
+        with self.settings(LOGIN_URL='/user/login/'):
+            response = self.client.get('/facilities/partners')
+            self.assertRedirects(response, '/user/login/?next=/facilities/partners')
+
+    def test_partners_redirect(self):
+        #self.assertRedirects(response, '/home', status_code=301, target_status_code=301)
+        with self.settings(LOGIN_URL='/user/login/'):
+            response = self.client.get('/facilities/partners')
+            self.assertRedirects(response, '/user/login/?next=/facilities/partners')
+
+
+
+
+class FacilityModelTestCase(TestCase):
+    def facility_setup(self):
+        Facility_Info.objects.create(id=uuid.uuid4(), mfl_code=41000, name="my_new facility", county=1, sub_county=1, lat=2.45, lon=3.67,
+                                     partner=1, owner=1)
+        self.assertEqual(Facility_Info.objects.count(), 3)

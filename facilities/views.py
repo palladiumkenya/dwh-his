@@ -63,7 +63,7 @@ def index(request):
     return render(request, 'facilities/facilities_list.html', {'facilitiesdata': facilitiesdata})
 
 
-@login_required(login_url='/user/login')
+@login_required(login_url='/user/login/')
 def add_facility_data(request):
 
     if request.method == 'POST':
@@ -143,7 +143,7 @@ def add_facility_data(request):
     return render(request, 'facilities/update_facility.html', {'form': form, "title":"Add Facility"})
 
 
-@login_required(login_url='/user/login')
+@login_required(login_url='/user/login/')
 def update_facility_data(request, facility_id):
     # does item exist in db
     facility = get_object_or_404(Facility_Info, pk=facility_id)
@@ -260,6 +260,8 @@ def update_facility_data(request, facility_id):
 
     return render(request, 'facilities/update_facility.html', {'facilitydata': facilitydata, 'form': form, "title":"Update Facility data"})
 
+
+@login_required(login_url='/user/login/')
 def partners(request):
     partners_data = Partners.objects.prefetch_related('agency').all()
 

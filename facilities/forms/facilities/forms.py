@@ -52,9 +52,9 @@ class Facility_Data_Form(forms.Form):
     lab_man_offered = forms.BooleanField(label='Lab Manifest', required=False)
     # mhealth info
     ushauri = forms.BooleanField(label='Ushauri', required=False)
+    mlab = forms.BooleanField(label='MLab', required=False)
     nishauri = forms.BooleanField(label='Nishauri', required=False)
     c4c = forms.BooleanField(label='C4C', required=False)
-    mlab = forms.BooleanField(label='MLab', required=False)
     field_3PM = forms.BooleanField(label='3PM', required=False)
     art = forms.BooleanField(label='ART Directory', required=False)
     psurvey = forms.BooleanField(label='PSurvey', required=False)

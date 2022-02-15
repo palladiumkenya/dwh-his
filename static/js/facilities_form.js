@@ -73,4 +73,12 @@ $("#id_HTS").click(function(){
 
 $("#id_IL").click(function(){
     $("#IL_info").slideToggle();
+    //$('input[name="ushauri"]').prop("disabled", true);
+    if ($("#id_IL").is(":checked")) {
+        $('input[name="ushauri"]:first').prop("disabled", true);
+        $('input[name="mlab"]:first').prop("disabled", true);
+    }else{
+       $('input[name="ushauri"]:first').prop("disabled", false);
+       $('input[name="mlab"]:first').prop("disabled", false);
+    }
 });
