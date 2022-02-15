@@ -3,6 +3,7 @@ from django.urls import reverse
 
 from .models import *
 
+
 class FacilitiesListViewTest(TestCase):
     def test_homepage_view(self):
         response = self.client.get('/home')
@@ -46,6 +47,10 @@ class LoginRequiredRedirectsViewTest(TestCase):
 
 class FacilityModelTestCase(TestCase):
     def facility_setup(self):
-        Facility_Info.objects.create(id=uuid.uuid4(), mfl_code=41000, name="my_new facility", county=1, sub_county=1, lat=2.45, lon=3.67,
-                                     partner=1, owner=1)
-        self.assertEqual(Facility_Info.objects.count(), 3)
+        facility = Facility_Info.objects.create(id=uuid.uuid4(), mfl_code=41000, name="my_new facility",
+                                                county=1, sub_county=1,
+                                                lat=2.45, lon=3.67, partner=1, owner=1)
+        facility.save()
+        self.assertEqual(Facility_Info.objects.count(), 1)
+
+        #self.assertEqual(post.slug, slugify(post.title))
