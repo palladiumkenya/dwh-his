@@ -14,7 +14,7 @@ class Sub_Counties_Form(forms.Form):
 
 class Facility_Data_Form(forms.Form):
 
-    mfl_code = forms.IntegerField(label='MFL Code', required=True, max_value=5, min_value=5, error_messages={'max_value': 'Please let us know what to call you!'})
+    mfl_code = forms.IntegerField(label='MFL Code', required=True)
     name = forms.CharField(label='Facility Name', max_length=100)
     county = forms.ChoiceField(label='County')
     sub_county = forms.ChoiceField(label='Sub County', widget=forms.Select())
