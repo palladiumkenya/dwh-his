@@ -21,10 +21,10 @@ def create_db():
 
 
     # drop if exists database
-    cursorObject.execute("DROP DATABASE IF EXISTS lets_goooo")
+    #cursorObject.execute("DROP DATABASE IF EXISTS lets_goooo")
 
     # creating database
-    cursorObject.execute("CREATE DATABASE IF NOT EXISTS lets_goooo")
+    #cursorObject.execute("CREATE DATABASE IF NOT EXISTS lets_goooo")
 
     #call_command("python -Xutf8 manage.py dumpdata -o mydata.json", interactive=False)
     call_command("migrate", interactive=False)

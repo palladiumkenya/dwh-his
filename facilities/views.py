@@ -18,7 +18,7 @@ def index(request):
                                                         .select_related('county') \
                                                         .select_related('sub_county').all()
 
-    implementation_info = Implementation_type.objects.select_related('facility_info').all()
+    #implementation_info = Implementation_type.objects.select_related('facility_info').all()
 
     facilitiesdata = []
     for row in facilities_info:
@@ -30,10 +30,9 @@ def index(request):
 
         ct = "CT" if implementation_info.ct else ""
         hts = "HTS" if implementation_info.hts else ""
-        kp = "KP" if implementation_info.kp else ""
         il = "IL" if implementation_info.il else ""
 
-        implementation = [ct, hts, kp, il]
+        implementation = [ct, hts, il]
 
         dataObj = {}
         dataObj["id"] = row.id
@@ -42,19 +41,19 @@ def index(request):
         dataObj["county"] = row.county
         dataObj["sub_county"] = row.sub_county
         dataObj["owner"] = row.owner.name
-        dataObj["lat"] = row.lat
-        dataObj["lon"] = row.lon
+        dataObj["lat"] = row.lat if row.lat else ""
+        dataObj["lon"] = row.lon if row.lon else ""
         dataObj["partner"] = row.partner.name
         dataObj["agency"] = row.partner.agency.name
         dataObj["implementation"] = implementation
-        dataObj["emr_type"] = emr_info.type.type
-        dataObj["emr_status"] = emr_info.status
-        dataObj["hts_use"] = hts_info.hts_use_name.hts_use_name
-        dataObj["hts_deployment"] = hts_info.deployment.deployment
+        dataObj["emr_type"] = emr_info.type.type if emr_info.type else ""
+        dataObj["emr_status"] = emr_info.status if emr_info.status else ""
+        dataObj["hts_use"] = hts_info.hts_use_name.hts_use_name if hts_info.hts_use_name else ""
+        dataObj["hts_deployment"] = hts_info.deployment.deployment if hts_info.deployment else ""
         dataObj["hts_status"] = hts_info.status
         dataObj["il_status"] = il_info.status
-        dataObj["il_registration_ie"] = il_info.registration_ie
-        dataObj["il_pharmacy_ie"] = il_info.pharmacy_ie
+        dataObj["il_registration_ie"] = il_info.webADT_registration
+        dataObj["il_pharmacy_ie"] = il_info.webADT_pharmacy
         dataObj["mhealth_ovc"] = mhealth_info.Nishauri
 
         facilitiesdata.append(dataObj)
@@ -69,7 +68,13 @@ def add_facility_data(request):
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = Facility_Data_Form(request.POST)
-        # check whether it's valid:
+        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
+        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
+        form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
+        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
+        form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
+        form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
+        form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
 
         if form.is_valid():
             unique_facility_id = uuid.uuid4()
@@ -88,36 +93,56 @@ def add_facility_data(request):
             facility.save()
 
             # save Implementation info
-            implementation_info = Implementation_type(ct=form.cleaned_data['CT'], kp=form.cleaned_data['KP'],
-                                hts=form.cleaned_data['HTS'], il=form.cleaned_data['IL'],
+            implementation_info = Implementation_type(ct=form.cleaned_data['CT'],
+                                                        hts=form.cleaned_data['HTS'], il=form.cleaned_data['IL'],
                                                       facility_info=Facility_Info.objects.get(pk=unique_facility_id))
 
             implementation_info.save()
 
-            # save HTS info
-            hts_info = HTS_Info(hts_use_name=HTS_use_type.objects.get(pk=int(form.cleaned_data['hts_use'])),
-                                status=form.cleaned_data['hts_status'],
-                                  deployment=HTS_deployment_type.objects.get(pk=int(form.cleaned_data['hts_deployment'])),
-                                facility_info=Facility_Info.objects.get(pk=unique_facility_id))
-            hts_info.save()
+            if form.cleaned_data['HTS'] == True:
+                # save HTS info
+                hts_info = HTS_Info(hts_use_name=HTS_use_type.objects.get(pk=int(form.cleaned_data['hts_use'])),
+                                    status=form.cleaned_data['hts_status'],
+                                      deployment=HTS_deployment_type.objects.get(pk=int(form.cleaned_data['hts_deployment'])),
+                                    facility_info=Facility_Info.objects.get(pk=unique_facility_id))
+                hts_info.save()
+            else:
+                # save HTS info
+                hts_info = HTS_Info(hts_use_name=None, status=None, deployment=None,
+                                    facility_info=Facility_Info.objects.get(pk=unique_facility_id))
+                hts_info.save()
 
             # save EMR info
-            emr_info = EMR_Info(type=EMR_type.objects.get(pk=int(form.cleaned_data['emr_type'])),
-                                 status=form.cleaned_data['emr_status'],
-                                ovc=form.cleaned_data['ovc_offered'], otz=form.cleaned_data['otz_offered'],
-                                prep=form.cleaned_data['prep_offered'], tb=form.cleaned_data['tb_offered'],
-                                facility_info=Facility_Info.objects.get(pk=unique_facility_id))
-            emr_info.save()
+            if form.cleaned_data['CT'] == True:
+                emr_info = EMR_Info(type=EMR_type.objects.get(pk=int(form.cleaned_data['emr_type'])),
+                                     status=form.cleaned_data['emr_status'],
+                                    ovc=form.cleaned_data['ovc_offered'], otz=form.cleaned_data['otz_offered'],
+                                    prep=form.cleaned_data['prep_offered'], tb=form.cleaned_data['tb_offered'],
+                                    kp=form.cleaned_data['kp_offered'], mnch=form.cleaned_data['mnch_offered'],
+                                    lab_manifest=form.cleaned_data['lab_man_offered'],
+                                    facility_info=Facility_Info.objects.get(pk=unique_facility_id))
+                emr_info.save()
+            else:
+                emr_info = EMR_Info(type=None, status=None, ovc=None, otz=None, prep=None,
+                                    tb=None, kp=None, mnch=None, lab_manifest=None,
+                                    facility_info=Facility_Info.objects.get(pk=unique_facility_id))
+                emr_info.save()
 
             # save IL info
-            il_info = IL_Info(registration_ie=form.cleaned_data['registration_ie'], pharmacy_ie=form.cleaned_data['pharmacy_ie'],
-                               status=form.cleaned_data['il_status'],
-                               facility_info=Facility_Info.objects.get(pk=unique_facility_id))
-            il_info.save()
+            if form.cleaned_data['IL'] == True:
+                il_info = IL_Info(webADT_registration=form.cleaned_data['webADT_registration'], webADT_pharmacy=form.cleaned_data['webADT_pharmacy'],
+                                   status=form.cleaned_data['il_status'], three_PM=form.cleaned_data['three_PM'],
+                                   facility_info=Facility_Info.objects.get(pk=unique_facility_id))
+                il_info.save()
+            else:
+                il_info = IL_Info(webADT_registration=None, webADT_pharmacy=None, status=None, three_PM=None,
+                                  facility_info=Facility_Info.objects.get(pk=unique_facility_id))
+                il_info.save()
 
             # save MHealth info
             mhealth_info = MHealth_Info(Ushauri=form.cleaned_data['ushauri'], C4C=form.cleaned_data['c4c'],
-                               Nishauri=form.cleaned_data['nishauri'],
+                               Nishauri=form.cleaned_data['nishauri'], ART_Directory=form.cleaned_data['art'],
+                                        Psurvey=form.cleaned_data['psurvey'], Mlab=form.cleaned_data['mlab'],
                                         facility_info=Facility_Info.objects.get(pk=unique_facility_id))
             mhealth_info.save()
 
@@ -134,7 +159,7 @@ def add_facility_data(request):
         #form['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
-        form.fields['owner'].choices =((i.id, i.name) for i in Owner.objects.all())
+        form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
         form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
         form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
         form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
@@ -183,32 +208,43 @@ def update_facility_data(request, facility_id):
             )
 
             Implementation_type.objects.filter(facility_info=facility_id).update(
-                ct=form.cleaned_data['CT'], kp=form.cleaned_data['KP'],
-                hts=form.cleaned_data['HTS'], il=form.cleaned_data['IL']
+                ct=form.cleaned_data['CT'], hts=form.cleaned_data['HTS'], il=form.cleaned_data['IL']
             )
 
-            EMR_Info.objects.filter(facility_info=facility_id).update(
-                type=EMR_type.objects.get(pk=int(form.cleaned_data['emr_type'])),
-                status=form.cleaned_data['emr_status'],
-                ovc=form.cleaned_data['ovc_offered'], otz=form.cleaned_data['otz_offered'],
-                prep=form.cleaned_data['prep_offered'], tb=form.cleaned_data['tb_offered'],
-            )
+            # save HTS info
+            if form.cleaned_data['HTS'] == True:
+                HTS_Info.objects.filter(facility_info=facility_id).update(
+                                    hts_use_name=HTS_use_type.objects.get(pk=int(form.cleaned_data['hts_use'])),
+                                    status=form.cleaned_data['hts_status'],
+                                    deployment=HTS_deployment_type.objects.get(pk=int(form.cleaned_data['hts_deployment'])))
+            else:
+                HTS_Info.objects.filter(facility_info=facility_id).update(hts_use_name=None, status=None, deployment=None)
 
-            HTS_Info.objects.filter(facility_info=facility_id).update(
-                hts_use_name=HTS_use_type.objects.get(pk=int(form.cleaned_data['hts_use'])),
-                status=form.cleaned_data['hts_status'],
-                deployment=HTS_deployment_type.objects.get(pk=int(form.cleaned_data['hts_deployment'])),
-            )
+            # save EMR info
+            if form.cleaned_data['CT'] == True:
+                EMR_Info.objects.filter(facility_info=facility_id).update(type=EMR_type.objects.get(pk=int(form.cleaned_data['emr_type'])),
+                                    status=form.cleaned_data['emr_status'],
+                                    ovc=form.cleaned_data['ovc_offered'], otz=form.cleaned_data['otz_offered'],
+                                    prep=form.cleaned_data['prep_offered'], tb=form.cleaned_data['tb_offered'],
+                                    kp=form.cleaned_data['kp_offered'], mnch=form.cleaned_data['mnch_offered'],
+                                    lab_manifest=form.cleaned_data['lab_man_offered'])
+            else:
+                EMR_Info.objects.filter(facility_info=facility_id).update(type=None, status=None, ovc=None, otz=None, prep=None,
+                                                        tb=None, kp=None, mnch=None, lab_manifest=None,)
 
-            IL_Info.objects.filter(facility_info=facility_id).update(
-                registration_ie=form.cleaned_data['registration_ie'], pharmacy_ie=form.cleaned_data['pharmacy_ie'],
-                status=form.cleaned_data['il_status'],
-            )
+            # save IL info
+            if form.cleaned_data['IL'] == True:
+                IL_Info.objects.filter(facility_info=facility_id).update(webADT_registration=form.cleaned_data['webADT_registration'],
+                                  webADT_pharmacy=form.cleaned_data['webADT_pharmacy'],
+                                  status=form.cleaned_data['il_status'], three_PM=form.cleaned_data['three_PM'])
+            else:
+                IL_Info.objects.filter(facility_info=facility_id).update(webADT_registration=None, webADT_pharmacy=None,
+                                                                         status=None, three_PM=None)
 
-            MHealth_Info.objects.filter(facility_info=facility_id).update(
-                Ushauri=form.cleaned_data['ushauri'], C4C=form.cleaned_data['c4c'],
-                Nishauri=form.cleaned_data['nishauri'],
-            )
+            # save MHealth info
+            MHealth_Info.objects.filter(facility_info=facility_id).update(Ushauri=form.cleaned_data['ushauri'], C4C=form.cleaned_data['c4c'],
+                                        Nishauri=form.cleaned_data['nishauri'], ART_Directory=form.cleaned_data['art'],
+                                        Psurvey=form.cleaned_data['psurvey'], Mlab=form.cleaned_data['mlab'])
 
             # Redirect to home (/)
             messages.add_message(request, messages.SUCCESS, 'Facility was successfully updated. View changes below!')
@@ -224,39 +260,45 @@ def update_facility_data(request, facility_id):
             'name': facilitydata.name,
             'county': facilitydata.county.id,
             'sub_county': facilitydata.sub_county.id,
-            'owner': facilitydata.owner.name,
-            'sdp': facilitydata.partner.name,
+            'owner': facilitydata.owner.id,
+            'partner': facilitydata.partner.id,
             'agency': facilitydata.partner.agency.name,
             'lat': facilitydata.lat,
             'lon': facilitydata.lon,
             'CT': implementation_info.ct,
             'HTS': implementation_info.hts,
-            'KP': implementation_info.kp,
             'IL': implementation_info.il,
             'ovc_offered': emr_info.ovc,
             'otz_offered': emr_info.otz,
             'tb_offered': emr_info.tb,
             'prep_offered': emr_info.prep,
+            'mnch_offered': emr_info.mnch,
+            'kp_offered': emr_info.kp,
+            'lab_man_offered': emr_info.lab_manifest,
             'ushauri': mhealth_info.Ushauri,
             'nishauri': mhealth_info.Nishauri,
             'c4c': mhealth_info.C4C,
+            'mlab': mhealth_info.Mlab,
+            'psurvey': mhealth_info.Psurvey,
+            'art': mhealth_info.ART_Directory,
             'il_status': il_info.status,
-            'registration_ie': il_info.registration_ie,
-            'pharmacy_ie': il_info.pharmacy_ie,
-            'emr_type': emr_info.type.type,
+            'webADT_registration': il_info.webADT_registration,
+            'webADT_pharmacy': il_info.webADT_pharmacy,
+            'three_PM': il_info.three_PM,
+            'emr_type': emr_info.type.id if emr_info.type else "",
             'emr_status': emr_info.status,
-            'hts_use': hts_info.hts_use_name,
-            'hts_deployment': hts_info.deployment,
+            'hts_use': hts_info.hts_use_name.id if hts_info.hts_use_name else "",
+            'hts_deployment': hts_info.deployment.id if hts_info.deployment else "",
             'hts_status': hts_info.status,
         }
         form = Facility_Data_Form(initial=initial_data)
-        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
-        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
-        form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
-        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
-        form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
-        form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
-        form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
+        form.fields['county'].choices = ((str(i.id), i.name) for i in Counties.objects.all().order_by('name'))
+        form.fields['sub_county'].choices = ((str(i.id), i.name) for i in Sub_counties.objects.all().order_by('name'))
+        form.fields['owner'].choices = ((str(i.id), i.name) for i in Owner.objects.all())
+        form.fields['partner'].choices = ((str(i.id), i.name) for i in Partners.objects.all())
+        form.fields['emr_type'].choices = ((str(i.id), i.type) for i in EMR_type.objects.all())
+        form.fields['hts_use'].choices = ((str(i.id), i.hts_use_name) for i in HTS_use_type.objects.all())
+        form.fields['hts_deployment'].choices = ((str(i.id), i.deployment) for i in HTS_deployment_type.objects.all())
 
     return render(request, 'facilities/update_facility.html', {'facilitydata': facilitydata, 'form': form, "title":"Update Facility data"})
 

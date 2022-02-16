@@ -2,6 +2,7 @@ from django import forms
 from ...models import *
 
 
+
 class Update_Partner_Form(forms.Form):
     partner = forms.CharField(label='SDP', max_length=100)
     agency = forms.CharField(label='SDP Agency', max_length=100)
@@ -13,10 +14,10 @@ class Sub_Counties_Form(forms.Form):
 
 class Facility_Data_Form(forms.Form):
 
-    mfl_code = forms.IntegerField(label='MFL Code', required=True, max_value=5)
+    mfl_code = forms.IntegerField(label='MFL Code', required=True, max_value=5, min_value=5, error_messages={'max_value': 'Please let us know what to call you!'})
     name = forms.CharField(label='Facility Name', max_length=100)
     county = forms.ChoiceField(label='County')
-    sub_county = forms.ChoiceField(label='Sub County')
+    sub_county = forms.ChoiceField(label='Sub County', widget=forms.Select())
     owner = forms.ChoiceField(label='Owner')
     lat = forms.DecimalField(label='Latitude', required=False,)
     lon = forms.DecimalField(label='Longitude', required=False)
@@ -40,8 +41,9 @@ class Facility_Data_Form(forms.Form):
     il_status = forms.ChoiceField(label='IL Status', required=False,
                                    choices=(('Active','Active'),('Stalled/Inactive', 'Stalled/Inactive'),
                                             ('Discontinued', 'Discontinued')))
-    registration_ie =forms.BooleanField(label='WebADT Registration', required=False)
-    pharmacy_ie = forms.BooleanField(label='WebADT Pharmacy', required=False)
+    three_PM = forms.BooleanField(label='3PM', required=False)
+    webADT_registration =forms.BooleanField(label='WebADT Registration', required=False)
+    webADT_pharmacy = forms.BooleanField(label='WebADT Pharmacy', required=False)
     # emr info
     ovc_offered = forms.BooleanField(label='OVC', required=False)
     otz_offered = forms.BooleanField(label='OTZ', required=False)
@@ -55,7 +57,6 @@ class Facility_Data_Form(forms.Form):
     mlab = forms.BooleanField(label='MLab', required=False)
     nishauri = forms.BooleanField(label='Nishauri', required=False)
     c4c = forms.BooleanField(label='C4C', required=False)
-    field_3PM = forms.BooleanField(label='3PM', required=False)
     art = forms.BooleanField(label='ART Directory', required=False)
     psurvey = forms.BooleanField(label='PSurvey', required=False)
 
