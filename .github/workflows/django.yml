@@ -52,3 +52,11 @@ jobs:
         DBPASSWORD: zergling
         DBHOST: 127.0.0.1
         DBPORT: $
+        build:
+
+  runs-on: ubuntu-latest
+
+          steps:
+          - uses: actions/checkout@v2
+          - name: Build the Docker image
+            run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
