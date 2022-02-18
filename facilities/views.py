@@ -292,7 +292,7 @@ def update_facility_data(request, facility_id):
             messages.add_message(request, messages.SUCCESS, 'Facility was edited! Changes made to facility data will be approved before being shown below')
             return HttpResponseRedirect('/home')
 
-            # notify users of changes for approval
+            # notify users of changes for approval ##### testing #####
             subject = "Facility Modified"
             url = "http://127.0.0.1:8000/approvals/approve_changes/"
             message = f"<h3>Greetings!</h3> \n\n Facility with MFL code {facilitydata.mfl_code} has been modified. Please review these changes and approve them " \
@@ -303,6 +303,7 @@ def update_facility_data(request, facility_id):
                 send_mail(subject, message, settings.DEFAULT_FROM_EMAIL,  ['marykilewe@gmail.com'])
             except BadHeaderError:
                 return HttpResponse('Invalid header found.')
+            ##### testing #####
 
             # Redirect to home (/)
             messages.add_message(request, messages.SUCCESS, 'Facility changes were saved. Waiting for approval before displaying them!')
@@ -528,18 +529,6 @@ def partners(request):
         except Exception as e:
             print(e)
             messages.add_message(request, messages.ERROR, 'An error occured. Please try again!')
-
-    # notify users of changes for approval
-    subject = "Facility Modified"
-    url = "http://127.0.0.1:8000/approvals/approve_changes/"
-    message = f"Greetings! \n\n Facility with MFL code 34354564 has been modified. Please review these changes and approve them " \
-              f"before the changes can be reflected. To view changes navigate to {url}9c3f2e47-4422-4c45-93bb-6247b9f22b75"
-
-    try:
-        # send_mail(subject, message, from_email, ['marykilewe@gmail.com'])
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, ['marykilewe@gmail.com'])
-    except BadHeaderError:
-        return HttpResponse('Invalid header found.')
 
     return render(request, 'facilities/partners_list.html', {'partners_data': partners_data})
 
