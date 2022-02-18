@@ -15,3 +15,7 @@
 .hide_element{
     display:none;
 }
+
+.btn-success{
+    background-color:#1ab394 !important;
+}

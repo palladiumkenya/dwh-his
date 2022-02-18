@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import MinValueValidator, MaxValueValidator
 from ...models import *
 
 
@@ -14,7 +15,8 @@ class Sub_Counties_Form(forms.Form):
 
 class Facility_Data_Form(forms.Form):
 
-    mfl_code = forms.IntegerField(label='MFL Code', required=True)
+    mfl_code = forms.IntegerField(label='MFL Code', required=True,
+                                  validators=[MinValueValidator(10000, 'MFL Code can only be a length of 5'),MaxValueValidator(99999, 'MFL Code can only be a length of 5')])
     name = forms.CharField(label='Facility Name', max_length=100)
     county = forms.ChoiceField(label='County')
     sub_county = forms.ChoiceField(label='Sub County', widget=forms.Select())

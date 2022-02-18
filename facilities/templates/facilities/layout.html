@@ -74,6 +74,8 @@
                     <i class="fa-solid fa-circle-exclamation"></i>
                 {% elif message.tags == 'error' %}
                     <i class="fa-solid fa-triangle-exclamation"></i>
+                {% elif message.tags == 'success' %}
+                    <i class="fa-solid fa-circle-check"></i>
                 {% endif%}
                 <!-- actual warning message below -->
                 {{ message }}

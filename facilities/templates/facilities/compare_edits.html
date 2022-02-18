@@ -3,16 +3,7 @@
 
 {% block content %}
     <section class="mx-5">
-
-        {% if facility_edits %}
-            <div class="alert_message alert alert-warning alert-danger" role="alert" id="message_alert">
-                <i class="fa-solid fa-circle-info"></i>
-                This Facility's data has been updated. Approve or discard those changes before attempting to update.
-                Navigate to <a href="/facilities/approve_changes/{{facility_edits.id}}">Approve this facility's edits</a>
-            </div>
-        {% endif %}
-
-        <form id="facility_form" action="" method="post" class="form-control">
+        <form action="" method="post" class="form-control">
             {% csrf_token %}
             <legend class="mb-5 mt-3 text-center green_text_color"><b>{{ title }}</b></legend>
             <hr>
@@ -161,46 +152,24 @@
                 </div>
             </div>
 
-             {% if "/facilities/approve_changes/" in request.path %}
-                <div class="row mb-5 d-flex justify-content-center">
-                    <div class="col-md-2 ml-5 inputContainer ">
-                        <button name="approve" type="submit" value="Approve changes" class="btn btn-success">
-                            <i class="fa-solid fa-thumbs-up"></i> Approve changes
-                        </button>
-                    </div>
-                    <div class="col-md-2">
-                        <button name="discard" type="submit" value="Discard changes" class="btn btn-danger">
-                            <i class="fa-solid fa-trash-can"></i> Discard changes
-                        </button>
-                    </div>
+            <div class="row mb-5 d-flex justify-content-center">
+                <div class="col-md-2 ml-5 inputContainer ">
+                    <button name="approve" type="submit" value="Approve changes" class="btn btn-success">
+                        <i class="fa-solid fa-thumbs-up"></i> Approve changes
+                    </button>
                 </div>
-            {% else %}
-                <input type="submit" value="Submit" class="btn btn-outline-success">
-            {% endif %}
+                <div class="col-md-2">
+                    <button name="discard" type="submit" value="Discard changes" class="btn btn-danger">
+                        <i class="fa-solid fa-trash-can"></i> Discard changes
+                    </button>
+                </div>
+            </div>
 
         </form>
     </section>
 
-
     <script type="text/javascript">
-        //localStorage.setItem('mlab_value', true);
-        //const mlab = true if String({{mhealth_info.Mlab}}) === "True" else false;
-        // const ushauri = {{mhealth_info.Ushauri}};
-        // const c4c = {{ mhealth_info.C4C}};
-
-        //console.log(String({{mhealth_info.Mlab}}));
-
         const subcounty_id_saved = {{facilitydata.sub_county_id}};
-
-        let disable_fields = false;
-        {% if facility_edits %}
-            if(window.location.href.indexOf("/facilities/update_facility/") > -1){
-                disable_fields = true;
-            }else{
-                disable_fields = false;
-            }
-        {% endif %}
-       // console.log(disable_fields)
     </script>
 
     {% load static %}
