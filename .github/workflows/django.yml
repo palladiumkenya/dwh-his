@@ -69,6 +69,7 @@ jobs:
         env:
           app_name: app
         with:
+        
           username: _json_key # default for gcr.io
           password: ${{ secrets.GKE_PASSWORD }} # service account file to be set as secret
           registry: gcr.io # gcr registry domain
