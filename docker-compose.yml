@@ -25,7 +25,7 @@ services:
       - "7001:8000"
     environment:
       DB_DATABASE: ${MYSQL_DB:-mfl_interface_db}
-      DB_HOST: dwh-his_mysql_1
+      DB_HOST: his-list_web_1
       DB_USERNAME: ${MYSQL_USER:-his}
       DB_PASSWORD: ${MYSQL_PASSWORD:-DodgerMXT123}
       DB_CREATE_TABLES: 'true'
