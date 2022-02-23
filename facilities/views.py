@@ -82,42 +82,47 @@ def index(request):
     #implementation_info = Implementation_type.objects.select_related('facility_info').all()
 
     facilitiesdata = []
-    for row in facilities_info:
-        implementation_info = Implementation_type.objects.get(facility_info=row.id)
-        emr_info = EMR_Info.objects.get(facility_info=row.id)
-        hts_info = HTS_Info.objects.get(facility_info=row.id)
-        il_info = IL_Info.objects.get(facility_info=row.id)
-        mhealth_info = MHealth_Info.objects.get(facility_info=row.id)
+    try:
+        for row in facilities_info:
+            implementation_info = Implementation_type.objects.get(facility_info=row.id)
+            emr_info = EMR_Info.objects.get(facility_info=row.id)
+            hts_info = HTS_Info.objects.get(facility_info=row.id)
+            il_info = IL_Info.objects.get(facility_info=row.id)
+            mhealth_info = MHealth_Info.objects.get(facility_info=row.id)
 
-        ct = "CT" if implementation_info.ct else ""
-        hts = "HTS" if implementation_info.hts else ""
-        il = "IL" if implementation_info.il else ""
+            ct = "CT" if implementation_info.ct else ""
+            hts = "HTS" if implementation_info.hts else ""
+            il = "IL" if implementation_info.il else ""
 
-        implementation = [ct, hts, il]
+            implementation = [ct, hts, il]
 
-        dataObj = {}
-        dataObj["id"] = row.id
-        dataObj["mfl_code"] = row.mfl_code
-        dataObj["name"] = row.name
-        dataObj["county"] = row.county
-        dataObj["sub_county"] = row.sub_county
-        dataObj["owner"] = row.owner.name if row.owner else ""
-        dataObj["lat"] = row.lat if row.lat else ""
-        dataObj["lon"] = row.lon if row.lon else ""
-        dataObj["partner"] = row.partner.name if row.partner else ""
-        dataObj["agency"] = row.partner.agency.name if row.partner else ""
-        dataObj["implementation"] = implementation
-        dataObj["emr_type"] = emr_info.type.type if emr_info.type else ""
-        dataObj["emr_status"] = emr_info.status if emr_info.status else ""
-        dataObj["hts_use"] = hts_info.hts_use_name.hts_use_name if hts_info.hts_use_name else ""
-        dataObj["hts_deployment"] = hts_info.deployment.deployment if hts_info.deployment else ""
-        dataObj["hts_status"] = hts_info.status
-        dataObj["il_status"] = il_info.status
-        dataObj["il_registration_ie"] = il_info.webADT_registration
-        dataObj["il_pharmacy_ie"] = il_info.webADT_pharmacy
-        dataObj["mhealth_ovc"] = mhealth_info.Nishauri
+            dataObj = {}
+            dataObj["id"] = row.id
+            dataObj["mfl_code"] = row.mfl_code
+            dataObj["name"] = row.name
+            dataObj["county"] = row.county
+            dataObj["sub_county"] = row.sub_county
+            dataObj["owner"] = row.owner.name if row.owner else ""
+            dataObj["lat"] = row.lat if row.lat else ""
+            dataObj["lon"] = row.lon if row.lon else ""
+            dataObj["partner"] = row.partner.name if row.partner else ""
+            dataObj["agency"] = row.partner.agency.name if row.partner else ""
+            dataObj["implementation"] = implementation
+            dataObj["emr_type"] = emr_info.type.type if emr_info.type else ""
+            dataObj["emr_status"] = emr_info.status if emr_info.status else ""
+            dataObj["hts_use"] = hts_info.hts_use_name.hts_use_name if hts_info.hts_use_name else ""
+            dataObj["hts_deployment"] = hts_info.deployment.deployment if hts_info.deployment else ""
+            dataObj["hts_status"] = hts_info.status
+            dataObj["il_status"] = il_info.status
+            dataObj["il_registration_ie"] = il_info.webADT_registration
+            dataObj["il_pharmacy_ie"] = il_info.webADT_pharmacy
+            dataObj["mhealth_ovc"] = mhealth_info.Nishauri
 
-        facilitiesdata.append(dataObj)
+            facilitiesdata.append(dataObj)
+    except Exception as e:
+        messages.add_message(request, messages.ERROR,
+                             'A problem was encountered when fetching facility data. Please try again.')
+        #return HttpResponseRedirect('/home')
 
     #messages.add_message(request, messages.SUCCESS, 'Welcome to DWH-HIS Portal')
     return render(request, 'facilities/facilities_list.html', {'facilitiesdata': facilitiesdata})

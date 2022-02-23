@@ -21,5 +21,5 @@
 }
 
 p, li, a, td, th, label, b, input, select {
-  font-size: 0.8em !important; /* 40px/16=2.5em */
+  font-size: 0.7em !important; /* 40px/16=2.5em */
 }

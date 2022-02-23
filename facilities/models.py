@@ -53,7 +53,7 @@ class Facility_Info(models.Model):
     lon = models.DecimalField(max_digits=9, decimal_places=6, default=None, blank=True, null=True)
     partner = models.ForeignKey(Partners, on_delete=models.CASCADE, default=None, blank=True, null=True)
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE, default=None, blank=True, null=True)
-    kmhfltest_id = models.UUIDField(default=None, editable=False)
+    kmhfltest_id = models.UUIDField(default=None, editable=False, blank=True, null=True)
 
 
 class Edited_Facility_Info(models.Model):
