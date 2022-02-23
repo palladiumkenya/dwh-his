@@ -45,20 +45,21 @@ class IL_modules(models.Model):
 
 class Facility_Info(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    mfl_code = models.IntegerField()
+    mfl_code = models.IntegerField(default=None, blank=True, null=True)
     name = models.CharField(max_length=100)
     county = models.ForeignKey(Counties, on_delete=models.CASCADE, default=None)
     sub_county = models.ForeignKey(Sub_counties, on_delete=models.CASCADE, default=None, blank=True, null=True)
     lat = models.DecimalField(max_digits=9, decimal_places=6, default=None, blank=True, null=True)
     lon = models.DecimalField(max_digits=9, decimal_places=6, default=None, blank=True, null=True)
-    partner = models.ForeignKey(Partners, on_delete=models.CASCADE)
-    owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
+    partner = models.ForeignKey(Partners, on_delete=models.CASCADE, default=None, blank=True, null=True)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, default=None, blank=True, null=True)
+    kmhfltest_id = models.UUIDField(default=None, editable=False)
 
 
 class Edited_Facility_Info(models.Model):
     # this stores edited facility data awaiting approval. Once approved, it will be deleted
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    mfl_code = models.IntegerField()
+    mfl_code = models.IntegerField(default=None, blank=True, null=True)
     name = models.CharField(max_length=100)
     county = models.ForeignKey(Counties, on_delete=models.CASCADE, default=None)
     sub_county = models.ForeignKey(Sub_counties, on_delete=models.CASCADE, default=None, blank=True, null=True)
@@ -108,12 +109,12 @@ class IL_Info(models.Model):
 class MHealth_Info(models.Model):
     # consider Boolean field
     #status = models.CharField(max_length=100)
-    Ushauri = models.BooleanField(default=False)
-    C4C = models.BooleanField(default=False)
-    Nishauri = models.BooleanField(default=False)
-    Mlab = models.BooleanField(default=False)
-    ART_Directory = models.BooleanField(default=False)
-    Psurvey = models.BooleanField(default=False)
+    Ushauri = models.BooleanField(default=False, blank=True, null=True)
+    C4C = models.BooleanField(default=False, blank=True, null=True)
+    Nishauri = models.BooleanField(default=False, blank=True, null=True)
+    Mlab = models.BooleanField(default=False, blank=True, null=True)
+    ART_Directory = models.BooleanField(default=False, blank=True, null=True)
+    Psurvey = models.BooleanField(default=False, blank=True, null=True)
     for_version = models.CharField(max_length=20, default="original")
     facility_info = models.ForeignKey(Facility_Info, on_delete=models.CASCADE, default=None, blank=True, null=True)
     facility_edits = models.ForeignKey(Edited_Facility_Info, on_delete=models.CASCADE, default=None, blank=True, null=True)
@@ -121,9 +122,9 @@ class MHealth_Info(models.Model):
 
 class Implementation_type(models.Model):
     #type = models.CharField(max_length=100, default=None)
-    ct = models.BooleanField(default=False)
-    hts = models.BooleanField(default=False)
-    il = models.BooleanField(default=False)
+    ct = models.BooleanField(default=False, blank=True, null=True)
+    hts = models.BooleanField(default=False, blank=True, null=True)
+    il = models.BooleanField(default=False, blank=True, null=True)
     for_version = models.CharField(max_length=20, default="original")
     facility_info = models.ForeignKey(Facility_Info, on_delete=models.CASCADE, default=None, blank=True, null=True)
     facility_edits = models.ForeignKey(Edited_Facility_Info, on_delete=models.CASCADE, default=None, blank=True, null=True)

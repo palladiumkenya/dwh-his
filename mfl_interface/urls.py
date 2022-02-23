@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from .one_time_startup import create_db
+#from facilities.one_time_startup import create_db
 
 urlpatterns = [
     path('', include('facilities.urls')),
@@ -23,4 +23,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 ]
 
-#create_db()
+# create_db()

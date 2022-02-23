@@ -12,6 +12,65 @@ from django.conf import settings
 from .models import *
 from .forms.facilities.forms import *
 
+from requests.structures import CaseInsensitiveDict
+import requests
+import json
+
+
+def fill_database(request):
+    headers = CaseInsensitiveDict()
+    headers["Accept"] = "application/json"
+    headers["Authorization"] = "Bearer nCDms5vo6dueklfIL3OitjjCkWUtMb"
+    url = 'http://api.kmhfltest.health.go.ke/api/facilities/facilities/?format=json'
+    response = requests.get(url, headers=headers)
+
+    data = json.loads(response.content)
+
+    for i in range(0, len(data['results'])):
+        print("sub county",data['results'][i]['sub_county_name'])
+        lat_long = data['results'][i]["lat_long"] if data['results'][i]["lat_long"] else [None, None]
+        unique_facility_id = uuid.uuid4()
+        facility = Facility_Info.objects.create(id=unique_facility_id, mfl_code=data['results'][i]['code'],
+                                                name=data['results'][i]['name'],
+                                                county=Counties.objects.get(name=data['results'][i]['county_name']),
+                                                sub_county=Sub_counties.objects.get(
+                                                    name=data['results'][i]['sub_county_name']),
+                                                owner=Owner.objects.get(name=data['results'][i]['owner_type_name']),
+                                                # partner=Partners.objects.get(pk=int(form.cleaned_data['partner'])),
+                                                lat=lat_long[0],
+                                                lon=lat_long[1],
+                                                kmhfltest_id=data['results'][i]["id"]
+                                                ).save()
+
+        # save Implementation info
+        implementation_info = Implementation_type(ct=None, hts=None, il=None,
+                                                  for_version="original",
+                                                  facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+
+        # save HTS info
+        hts_info = HTS_Info(hts_use_name=None, status=None, deployment=None,
+                            for_version="original",
+                            facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+
+        # save EMR info
+        emr_info = EMR_Info(type=None, status=None, ovc=None, otz=None, prep=None,
+                            tb=None, kp=None, mnch=None, lab_manifest=None,
+                            for_version="original",
+                            facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+
+        # save IL info
+        il_info = IL_Info(webADT_registration=None, webADT_pharmacy=None, status=None, three_PM=None,
+                          for_version="original",
+                          facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+
+        # save MHealth info
+        mhealth_info = MHealth_Info(Ushauri=None, C4C=None,
+                                    Nishauri=None, ART_Directory=None,
+                                    Psurvey=None, Mlab=None,
+                                    for_version="original",
+                                    facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+
+    return HttpResponseRedirect('/home')
 
 
 def index(request):
@@ -42,11 +101,11 @@ def index(request):
         dataObj["name"] = row.name
         dataObj["county"] = row.county
         dataObj["sub_county"] = row.sub_county
-        dataObj["owner"] = row.owner.name
+        dataObj["owner"] = row.owner.name if row.owner else ""
         dataObj["lat"] = row.lat if row.lat else ""
         dataObj["lon"] = row.lon if row.lon else ""
-        dataObj["partner"] = row.partner.name
-        dataObj["agency"] = row.partner.agency.name
+        dataObj["partner"] = row.partner.name if row.partner else ""
+        dataObj["agency"] = row.partner.agency.name if row.partner else ""
         dataObj["implementation"] = implementation
         dataObj["emr_type"] = emr_info.type.type if emr_info.type else ""
         dataObj["emr_status"] = emr_info.status if emr_info.status else ""
@@ -62,6 +121,26 @@ def index(request):
 
     #messages.add_message(request, messages.SUCCESS, 'Welcome to DWH-HIS Portal')
     return render(request, 'facilities/facilities_list.html', {'facilitiesdata': facilitiesdata})
+
+
+@login_required(login_url='/user/login/')
+def add_sub_counties(request):
+    if request.method == 'POST':
+        form = Sub_Counties_Form(request.POST)
+        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
+        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
+
+        if form.is_valid():
+            subcounty = Sub_counties(name=(form.cleaned_data['add_sub_county']).strip(),
+                                county=Counties.objects.get(pk=int(form.cleaned_data['county']))).save()
+            messages.add_message(request, messages.SUCCESS, 'Sub county was successfully added and can be viewed below!')
+            return HttpResponseRedirect('/facilities/add_sub_counties')
+    else:
+        form = Sub_Counties_Form()
+        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
+        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
+
+    return render(request, 'facilities/add_sub_counties.html', {'form': form, "title": "Add sub_counties"})
 
 
 @login_required(login_url='/user/login/')
@@ -165,7 +244,7 @@ def add_facility_data(request):
 
         # if a GET (or any other method) we'll create a blank form
     else:
-        form = Facility_Data_Form()
+        form = Facility_Data_Form(initial={'county': 36})
         #form['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
@@ -319,9 +398,9 @@ def update_facility_data(request, facility_id):
             'name': facilitydata.name,
             'county': facilitydata.county.id,
             'sub_county': facilitydata.sub_county.id,
-            'owner': facilitydata.owner.id,
-            'partner': facilitydata.partner.id,
-            'agency': facilitydata.partner.agency.name,
+            'owner': facilitydata.owner.id if facilitydata.owner else "",
+            'partner': facilitydata.partner.id if facilitydata.partner else "",
+            'agency': facilitydata.partner.agency.name if facilitydata.partner else "",
             'lat': facilitydata.lat,
             'lon': facilitydata.lon,
             'CT': implementation_info.ct,
@@ -514,6 +593,19 @@ def approve_facility_changes(request, facility_id):
         form.fields['hts_deployment'].choices = ((str(i.id), i.deployment) for i in HTS_deployment_type.objects.all())
 
     return render(request, 'facilities/update_facility.html', {'facilitydata': edited_facilitydata, 'form': form, "title":"Changes Awaiting Approval"})
+
+
+@login_required(login_url='/user/login/')
+def delete_facility(request, facility_id):
+    Implementation_type.objects.get(facility_info=facility_id).delete()
+    HTS_Info.objects.get(facility_info=facility_id).delete()
+    EMR_Info.objects.get(facility_info=facility_id).delete()
+    IL_Info.objects.get(facility_info=facility_id).delete()
+    MHealth_Info.objects.get(facility_info=facility_id).delete()
+    Facility_Info.objects.get(pk=facility_id).delete()
+
+    messages.add_message(request, messages.SUCCESS, "Facility successfully deleted!")
+    return HttpResponseRedirect('/home')
 
 
 @login_required(login_url='/user/login/')

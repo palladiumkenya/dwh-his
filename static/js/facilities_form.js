@@ -15,10 +15,12 @@ $(document).ready(function() {
                 localStorage.setItem('subcounties', JSON.stringify(data)); //store a key/value
          });
 
+         //$("#id_county").val("36").change();
          $("#id_county").trigger("change");
          $("#id_partner").trigger("change");
 
          setTimeout(function() {
+             $("#id_county").trigger("change");
             //$("#id_sub_county").val("30").trigger("change");
             $("#id_sub_county").val(String(subcounty_id_saved));
         }, 2000);

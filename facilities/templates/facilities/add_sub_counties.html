@@ -1,0 +1,72 @@
+{% extends 'facilities/layout.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <section class="mx-5">
+
+        {% if facility_edits %}
+            <div class="alert_message alert alert-warning alert-danger" role="alert" id="message_alert">
+                <i class="fa-solid fa-circle-info"></i>
+                This Facility's data has been updated. Approve or discard those changes before attempting to update.
+                Navigate to <a href="/facilities/approve_changes/{{facility_edits.id}}">Approve this facility's edits</a>
+            </div>
+        {% endif %}
+
+        <form id="facility_form" action="" method="post" class="form-control">
+            {% csrf_token %}
+            <legend class="mb-5 mt-3 text-center green_text_color"><b>{{ title }}</b></legend>
+            <hr>
+            <div class="row  mb-5">
+                <div class="col-md-2">
+                    <h6 id="facility_toggle" class="green_text_color">Counties Information</h6>
+                </div>
+                <div id="facility" class="row section mb-4 col-md-10">
+                    <b>Counties Information</b>
+
+                  <div class="form-group col-md-4 mb-3">
+                        {{ form.county|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-md-4 mb-3">
+                        {{ form.sub_county|as_crispy_field }}
+                    </div>
+                    <div class="form-group col-md-4 mb-3">
+                        {{ form.add_sub_county|as_crispy_field }}
+                    </div>
+
+                </div>
+            </div>
+
+            <input type="submit" value="Add Sub-county" class="btn btn-outline-success">
+
+        </form>
+    </section>
+
+
+    <script type="text/javascript">
+       $.getJSON('http://127.0.0.1:8000/facilities/sub_counties', function(data) {
+                console.log(data)
+                localStorage.setItem('subcounties', JSON.stringify(data)); //store a key/value
+         });
+
+       $("#id_county").change(function(){
+          var retrievedsubcounty = localStorage.getItem('subcounties');
+
+            var value = $("#id_county").val();
+
+            $.each( JSON.parse(retrievedsubcounty) , function(index, item) {
+
+               if(item["county"] === parseInt(value)){
+                     $("#id_sub_county").empty();
+                    if(item["sub_county"].length > 0){
+                        $.each( item["sub_county"] , function(sub_ind, sub_item) {
+                            $('#id_sub_county').append("<option value="+sub_item['id']+">"+sub_item['name']+"</option>");
+                        });
+                    }
+               }
+            });
+        });
+    </script>
+
+
+
+{% endblock %}
