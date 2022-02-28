@@ -11,7 +11,7 @@ class Update_Partner_Form(forms.Form):
 class Sub_Counties_Form(forms.Form):
     county = forms.ChoiceField(label='County')
     sub_county = forms.ChoiceField(label='Existing Sub Counties for selected county', required=False)
-    add_sub_county = forms.CharField(label='Add Sub County', max_length=100)
+    add_sub_county = forms.CharField(label='Add Sub County', max_length=95)
 
 
 class Facility_Data_Form(forms.Form):

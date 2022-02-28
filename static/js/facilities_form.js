@@ -16,14 +16,14 @@ $(document).ready(function() {
          });
 
          //$("#id_county").val("36").change();
-         $("#id_county").trigger("change");
-         $("#id_partner").trigger("change");
+         //$("#id_county").trigger("change");
+         //$("#id_partner").trigger("change");
 
-         setTimeout(function() {
-             $("#id_county").trigger("change");
-            //$("#id_sub_county").val("30").trigger("change");
-            $("#id_sub_county").val(String(subcounty_id_saved));
-        }, 2000);
+        //  setTimeout(function() {
+        // }, 2000);
+
+         //$("#id_county").trigger("change");
+        //$("#id_sub_county").val(String(subcounty_id_saved));
 
          // if il or hts or ct was saved in DB, slide down divs containing their info
          if ($("#id_IL").is(":checked")) {

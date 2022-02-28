@@ -68,6 +68,8 @@ class Edited_Facility_Info(models.Model):
     partner = models.ForeignKey(Partners, on_delete=models.CASCADE)
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
     facility_info = models.ForeignKey(Facility_Info, on_delete=models.CASCADE)
+    #date_edited = models.ForeignKey(Facility_Info, on_delete=models.CASCADE)
+    #user_id = models.ForeignKey(Facility_Info, on_delete=models.CASCADE) #id of who edited
 
 
 class EMR_Info(models.Model):
