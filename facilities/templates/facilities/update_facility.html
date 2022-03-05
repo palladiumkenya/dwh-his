@@ -24,6 +24,7 @@
                     <b>Facility Information</b>
                   <div class="form-group col-md-3 mb-4">
                     {{ form.mfl_code|as_crispy_field }}
+                      <p id="mfl_code_error" style="color:red"></p>
                   </div>
                   <div class="form-group col-md-5 mb-4">
                     {{ form.name|as_crispy_field }}
@@ -163,33 +164,92 @@
 
              {% if "/facilities/approve_changes/" in request.path %}
                 <div class="row mb-5 d-flex justify-content-center">
-                    <div class="col-md-2 ml-5 inputContainer ">
-                        <button name="approve" type="submit" value="Approve changes" class="btn btn-success">
+                    <div class="col-md-2 ml-5 inputContainer "><!-- onclick="//confirm_approval()" onclick="//confirm_rejection()"-->
+                        <button name="approve" type="button" value="Approve changes" id="approve_changes" class="btn btn-success" onclick="confirm_approval()">
                             <i class="fa-solid fa-thumbs-up"></i> Approve changes
                         </button>
                     </div>
                     <div class="col-md-2">
-                        <button name="discard" type="submit" value="Discard changes" class="btn btn-danger">
+                        <button name="discard" type="button" value="Discard changes" id="discard_changes" class="btn btn-danger"  onclick="confirm_rejection()">
                             <i class="fa-solid fa-trash-can"></i> Discard changes
                         </button>
                     </div>
                 </div>
             {% else %}
-                <input type="submit" value="Submit" class="btn btn-outline-success">
+                 <div >
+                     <input type="submit" value="Submit" class="btn btn-outline-success" style="margin: 0 auto;">
+                 </div>
+
             {% endif %}
 
         </form>
     </section>
 
 
+    <script>
+
+        function confirm_approval(){
+            Swal.fire({
+              title: "Approve Changes?",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#1ab394',
+              cancelButtonColor: '#d33',
+              confirmButtonText: 'Approve'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                Swal.fire(
+                  'Success!',
+                  'Changes were approved and now reflect.',
+                  'success'
+                )
+                  $.get( "/send_customized_email", { "facility_id": "{{facilitydata.facility_info.id}}", "choice":"approved","reason":""});
+                  $("#approve_changes").attr('type', 'submit');
+                  setTimeout(function() {
+                    $('#approve_changes').click();
+                 }, 2000);
+
+              }
+            })
+
+        }
+    </script>
+
+    <script>
+
+        function confirm_rejection(){
+
+            Swal.fire({
+                title: "Reject Changes?",
+                text:  "Reasons for Rejection? This will be sent to the modifier of this Facility for their knowledge",
+                input: 'textarea',
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonText: 'Reject',
+                confirmButtonColor: '#dc3545',
+                preConfirm: (reasons) => {
+                    $.get( "/send_customized_email", { "facility_id": "{{facilitydata.facility_info.id}}", "choice":"rejected","reason":reasons});
+              }
+            }).then((result) => {
+              if (result.isConfirmed) {
+                  Swal.fire(
+                  'Success!',
+                  'Success! Changes have been discarded!',
+                  'success'
+                );
+                    $("#discard_changes").attr('type', 'submit');
+                    setTimeout(function() {
+                        Swal.close()
+                        $('#discard_changes').click();
+                     }, 2000);
+              } else {
+                    swal("Operation canceled!");
+              }
+            });
+        }
+    </script>
+
     <script type="text/javascript">
-        //localStorage.setItem('mlab_value', true);
-        //const mlab = true if String({{mhealth_info.Mlab}}) === "True" else false;
-        // const ushauri = {{mhealth_info.Ushauri}};
-        // const c4c = {{ mhealth_info.C4C}};
-
-        //console.log(String({{mhealth_info.Mlab}}));
-
         const subcounty_id_saved = {{facilitydata.sub_county_id}};
 
         let disable_fields = false;

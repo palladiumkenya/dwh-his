@@ -15,4 +15,7 @@ urlpatterns = [
     path(r'facilities/get_partners_list', views.get_partners_list, name='get_partners_list'),
     path(r'facilities/get_agencies_list', views.get_agencies_list, name='get_agencies_list'),
     path(r'fill_database', views.fill_database, name='fill_database'),
+    path(r'test_email', views.test_email, name='test_email'),
+    path(r'send_customized_email', views.send_customized_email, name='send_customized_email'),
+    path(r'add_stewards', views.add_stewards, name='add_stewards'),
 ]

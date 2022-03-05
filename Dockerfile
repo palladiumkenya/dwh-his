@@ -45,6 +45,6 @@ EXPOSE 8000
 # start server
 #CMD python manage.py makemigrations
 CMD python manage.py migrate
-CMD python manage.py loaddata preloadeddata.json
+CMD python manage.py loaddata updated_db_data.json
 CMD python manage.py runserver 0.0.0.0:8000
 

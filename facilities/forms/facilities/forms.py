@@ -17,7 +17,8 @@ class Sub_Counties_Form(forms.Form):
 class Facility_Data_Form(forms.Form):
 
     mfl_code = forms.IntegerField(label='MFL Code', required=True,
-                                  validators=[MinValueValidator(10000, 'MFL Code can only be a length of 5'),MaxValueValidator(99999, 'MFL Code can only be a length of 5')])
+                                  #validators=[MinValueValidator(10000, 'MFL Code can only be a length of 5'),MaxValueValidator(99999, 'MFL Code can only be a length of 5')]
+                                  )
     name = forms.CharField(label='Facility Name', max_length=100)
     county = forms.ChoiceField(label='County')
     sub_county = forms.ChoiceField(label='Sub County', widget=forms.Select())
@@ -32,17 +33,17 @@ class Facility_Data_Form(forms.Form):
     # emr info
     emr_type = forms.ChoiceField(label='EMR', required=False)
     emr_status = forms.ChoiceField(label='EMR Status', required=False,
-                                       choices=(('Active','Active'),('Stalled/Inactive', 'Stalled/Inactive'),
+                                       choices=(('',''), ('Active','Active'),('Stalled/Inactive', 'Stalled/Inactive'),
                                                 ('Discontinued', 'Discontinued')))
     # hts info
     hts_use = forms.ChoiceField(label='HTS Use', required=False)
     hts_deployment = forms.ChoiceField(label='Deployment', required=False)
     hts_status = forms.ChoiceField(label='HTS Status', required=False,
-                                   choices=(('Active','Active'),('Stalled/Inactive', 'Stalled/Inactive'),
+                                   choices=(('',''), ('Active','Active'),('Stalled/Inactive', 'Stalled/Inactive'),
                                             ('Discontinued', 'Discontinued')))
     # il info
     il_status = forms.ChoiceField(label='IL Status', required=False,
-                                   choices=(('Active','Active'),('Stalled/Inactive', 'Stalled/Inactive'),
+                                   choices=(('',''), ('Active','Active'),('Stalled/Inactive', 'Stalled/Inactive'),
                                             ('Discontinued', 'Discontinued')))
     three_PM = forms.BooleanField(label='3PM', required=False)
     webADT_registration =forms.BooleanField(label='WebADT Registration', required=False)
