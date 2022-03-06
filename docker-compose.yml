@@ -42,6 +42,6 @@ services:
         sleep 10
         python manage.py migrate --noinput
         sleep 10
-        python manage.py loaddata preloadeddata.json
+        python manage.py loaddata updated_db_data.json
         sleep 40
         python manage.py runserver 0.0.0.0:8000      

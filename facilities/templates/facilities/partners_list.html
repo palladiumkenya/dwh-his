@@ -3,7 +3,8 @@
 
 {% block content %}
     <section class="mx-5">
-         <table id="facilities_list" class="table striped ">
+        <h4>Service Delivery Partners</h4>
+         <table id="partners_list" class="table striped ">
             <thead>
                 <tr>
                     <th>Agency</th>
@@ -45,13 +46,21 @@
     </section>
 
 <script>
+    $(document).ready( function () {
+        $('#partners_list').DataTable();
+    } );
+</script>
+
+<script>
+    var base_url = window.location.origin;
+
     function show_agencies(field_id, value){
         $('#agency-'+field_id).removeAttr('disabled');
         $('#partner-'+field_id).removeAttr('readonly');
         $('#update-'+field_id).show();
         $('#remove_readonly_button-'+field_id).hide();
 
-        $.getJSON('http://127.0.0.1:8000/facilities/get_agencies_list', function(data) {
+        $.getJSON(base_url + '/facilities/get_agencies_list', function(data) {
 
             $('#agency-'+field_id).empty();
 

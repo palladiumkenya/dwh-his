@@ -24,6 +24,7 @@
                     <b>Facility Information</b>
                   <div class="form-group col-md-3 mb-4">
                     {{ form.mfl_code|as_crispy_field }}
+                      <p id="mfl_code_error" style="color:red"></p>
                   </div>
                   <div class="form-group col-md-5 mb-4">
                     {{ form.name|as_crispy_field }}
@@ -163,19 +164,22 @@
 
              {% if "/facilities/approve_changes/" in request.path %}
                 <div class="row mb-5 d-flex justify-content-center">
-                    <div class="col-md-2 ml-5 inputContainer ">
+                    <div class="col-md-2 ml-5 inputContainer "><!-- onclick="//confirm_approval()" onclick="//confirm_rejection()"-->
                         <button name="approve" type="button" value="Approve changes" id="approve_changes" class="btn btn-success" onclick="confirm_approval()">
                             <i class="fa-solid fa-thumbs-up"></i> Approve changes
                         </button>
                     </div>
                     <div class="col-md-2">
-                        <button name="discard" type="button" value="Discard changes" id="discard_changes" class="btn btn-danger" onclick="confirm_rejection()">
+                        <button name="discard" type="button" value="Discard changes" id="discard_changes" class="btn btn-danger"  onclick="confirm_rejection()">
                             <i class="fa-solid fa-trash-can"></i> Discard changes
                         </button>
                     </div>
                 </div>
             {% else %}
-                <input type="submit" value="Submit" class="btn btn-outline-success">
+                 <div >
+                     <input type="submit" value="Submit" class="btn btn-outline-success" style="margin: 0 auto;">
+                 </div>
+
             {% endif %}
 
         </form>

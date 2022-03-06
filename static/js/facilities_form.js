@@ -1,20 +1,23 @@
 
 $(document).ready(function() {
+        var base_url = window.location.origin;
+
         // on page load, do the following
         if (disable_fields === true){
             $('#facility_form :input').prop("disabled",true);
         }
 
-         $.getJSON('http://127.0.0.1:8000/facilities/get_partners_list', function(data) {
+         $.getJSON(base_url + '/facilities/get_partners_list', function(data) {
             localStorage.setItem('sdp_agencies', JSON.stringify(data)); //store a key/value
          });
 
          //   url: 'http://127.0.0.1:8000/facilities/sub_counties',
-         $.getJSON('http://127.0.0.1:8000/facilities/sub_counties', function(data) {
+         $.getJSON(base_url + '/facilities/sub_counties', function(data) {
                 console.log(data)
                 localStorage.setItem('subcounties', JSON.stringify(data)); //store a key/value
          });
 
+         //$("#id_partner").val("").trigger("change");
          //$("#id_county").val("36").change();
          //$("#id_county").trigger("change");
          //$("#id_partner").trigger("change");
@@ -42,16 +45,24 @@ $(document).ready(function() {
          }
         if ($("#id_CT").is(":checked")) {
             $("#EMR_info").slideDown();
+            $("#id_emr_type").prop('required',true);
         }
 
         if ($("#id_HTS").is(":checked")) {
             $("#HTS_info").slideDown();
         }
-        console.log("testing");
-        console.log($('#MHealth_info input[name="ushauri"]').val());
+
 });
 
-
+    $( "#id_mfl_code" ).keyup(function() {
+      if ($( "#id_mfl_code" ).val().length >5){
+         $( "#mfl_code_error" ).html('MFL Code can only be 5 characters long');
+         truncated_code = $( "#id_mfl_code" ).val().slice(0,5)
+         $( "#id_mfl_code" ).val(truncated_code);
+      }else{
+          $( "#mfl_code_error" ).html('');
+      }
+    });
 //var section = $(this).attr('id').split('_');
 
 
@@ -60,11 +71,10 @@ $("#id_county").change(function(){
   var retrievedsubcounty = localStorage.getItem('subcounties');
 
     var value = $("#id_county").val();
+    $("#id_sub_county").empty();
 
     $.each( JSON.parse(retrievedsubcounty) , function(index, item) {
-
        if(item["county"] === parseInt(value)){
-             $("#id_sub_county").empty();
             if(item["sub_county"].length > 0){
                 $.each( item["sub_county"] , function(sub_ind, sub_item) {
                     $('#id_sub_county').append("<option value="+sub_item['id']+">"+sub_item['name']+"</option>");
@@ -79,6 +89,9 @@ $("#id_partner").change(function(){
 
     var value = $("#id_partner").val();
 
+    if (value === ""){
+        $("#id_agency").val("--");
+    }
     $.each( JSON.parse(retrievedsdp_agencies) , function(index, item) {
 
        if(item["partner"] === parseInt(value)){
@@ -90,21 +103,21 @@ $("#id_partner").change(function(){
 
 $("#id_CT").click(function(){
     $("#EMR_info").slideToggle();
+    $("#id_emr_type").prop('required', !$('#id_emr_type').prop('required'));
+    $("#id_emr_status").prop('required', !$('#id_emr_status').prop('required'));
 });
 
 $("#id_HTS").click(function(){
     $("#HTS_info").slideToggle();
+    $("#id_hts_use").prop('required', !$('#id_hts_use').prop('required'));
+    $("#id_hts_deployment").prop('required', !$('#id_hts_deployment').prop('required'));
+    $("#id_hts_status").prop('required', !$('#id_hts_status').prop('required'));
 });
 
 $("#id_IL").click(function(){
     $("#IL_info").slideToggle();
-    //$('input[name="ushauri"]').prop("disabled", true);
+    $("#id_il_status").prop('required', !$('#id_il_status').prop('required'));
     if ($("#id_IL").is(":checked")) {
-        // uncheck buttons
-        // $('#MHealth_info input[name="ushauri"]').prop('checked', false);
-        // $('#MHealth_info input[name="mlab"]').prop('checked', false);
-        // $('#MHealth_info input[name="c4c"]').prop('checked', false);
-        // disable buttons
         console.log("knowing");
         console.log($('#MHealth_info input[name="ushauri"]').val());
         $('#MHealth_info input[name="ushauri"]').prop("disabled", true);
@@ -120,9 +133,6 @@ $("#id_IL").click(function(){
         if ($('#MHealth_info input[name="c4c"]').is(":checked")) {
             $('#IL_info input[name="c4c"]').prop('checked', true);
         }
-        // $('#IL_info input[name="ushauri"]').val(ushauri);
-        // $('#IL_info input[name="mlab"]').val(mlab);
-        // $('#IL_info input[name="c4c"]').val(c4c);
     }else{
         // uncheck check fields
         $('#IL_info input[name="ushauri"]').prop('checked', false);

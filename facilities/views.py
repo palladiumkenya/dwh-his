@@ -12,6 +12,12 @@ from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import get_template
 from django.template import Context
+import pandas as pd
+import excel2json
+from django.contrib.auth.models import User
+
+import os
+from pathlib import Path
 
 from django.conf import settings
 
@@ -23,16 +29,16 @@ import requests
 import json
 
 
-
-
-def send_email(user_names, facility_id, mfl_code):
-
+def test_email(request):
+    demain = request.META['HTTP_HOST']
+    print("domain", demain, request.scheme)
+    print(request.scheme + request.META['HTTP_HOST'] + '/facilities/update_facility/'+'981893d7-8488-4319-b976-747873551b71')
     context = {
         'news': 'We have good news!',
-        'url': 'http://127.0.0.1:8000/facilities/update_facility/',
-        'mfl_code': mfl_code, #facilitydata.mfl_code,
-        'facility_id': facility_id, #facilitydata.id
-        'username': user_names
+        'url': request.scheme + "://" + request.META['HTTP_HOST'] + '/facilities/update_facility/' ,
+        'mfl_code': 122345, #facilitydata.mfl_code,
+        'facility_id': '981893d7-8488-4319-b976-747873551b71', #facilitydata.id
+        'username': 123456
     }
     msg_html = render_to_string('facilities/email_template.html', context)
     msg = EmailMessage(subject="Facility Modified", body=msg_html, from_email=settings.DEFAULT_FROM_EMAIL,
@@ -40,6 +46,25 @@ def send_email(user_names, facility_id, mfl_code):
     msg.content_subtype = "html"  # Main content is now text/html
     msg.send()
     print('-----------> sending mail ...')
+    return 0
+
+def send_email(scheme, domain, user_names, facility_id, mfl_code, partner_id):
+
+    context = {
+        'news': 'We have good news!',
+        'url': scheme + "://" + domain + '/facilities/update_facility/',
+        'mfl_code': mfl_code, #facilitydata.mfl_code,
+        'facility_id': facility_id, #facilitydata.id
+        'username': user_names
+    }
+    organization = Organization_stewards.objects.get(organization=partner_id)
+
+    msg_html = render_to_string('facilities/email_template.html', context)
+    msg = EmailMessage(subject="Facility Modified", body=msg_html, from_email=settings.DEFAULT_FROM_EMAIL,
+                       bcc=['marykilewe@gmail.com', organization.email])#, organization.email
+    msg.content_subtype = "html"  # Main content is now text/html
+    msg.send()
+    print('-----------> sending mail ...', organization.email)
     return 0
 
 
@@ -65,24 +90,63 @@ def send_customized_email(request):
             message = "Reasons provided for the rejection are : "
             subject = "Facility Changes Rejected!"
 
+        edits = Edited_Facility_Info.objects.select_related('user_edited').get(facility_info=facility_id)
+        # user = User.objects.get(pk=edits.user_edited)
+        print("the user is", edits.user_edited.first_name)
+
         context = {
             'news': 'We have good news!',
-            'url': 'http://127.0.0.1:8000/facilities/update_facility/',
+            'url': request.scheme + "://" + request.META['HTTP_HOST'] + '/facilities/update_facility/',
             'mfl_code':facilitydata.mfl_code,
             'facility_id': facilitydata.id,
             "message_title": message_title,
             "reason_given":reason,
             "choice": choice,
             "message": message,
-            "user_name": request.user.first_name + " "+request.user.last_name
+            "user_name": edits.user_edited.first_name + " "+ edits.user_edited.last_name
         }
         msg_html = render_to_string('facilities/customizable_email.html', context)
         msg = EmailMessage(subject=subject, body=msg_html, from_email=settings.DEFAULT_FROM_EMAIL,
-                           bcc=['marykilewe@gmail.com'])
+                           bcc=[edits.user_edited.email])
         msg.content_subtype = "html"  # Main content is now text/html
         msg.send()
         print('-----------> sending customized mail ...', choice)
     return HttpResponse(0)
+
+
+def add_stewards(request):
+
+    #file = os.path.join(Path(__file__).resolve().parent.parent, "facilities/kenyahmis_stewards.xlsx")
+    #stewards_data = pd.read_excel(file)  # reading file
+    #make json sheet of excel file
+    # excel_data_df = pd.read_excel(file, sheet_name='Sheet2')
+    # json_str = excel_data_df.to_json()
+    # print('Excel Sheet to JSON:\n', json_str)
+    # f = open("stewards.json", "w+")
+    # f.write(json_str)
+    # f.close()
+
+    f = open(os.path.join(Path(__file__).resolve().parent.parent, "facilities/stewards.json"), 'r')
+    data = json.load(f)
+    print(len(data))
+
+    main_keys = []
+    for dic in data:
+        main_keys.append(dic)
+        print(len(data[dic]))
+
+    for num in range(0, len(data["Number"])):
+        stewardObj = []
+        for key in main_keys:
+            stewardObj.append(data[key][str(num)])
+        print(stewardObj)
+        #Partners.objects.create(name=stewardObj[2]).save()
+        Organization_stewards.objects.create(steward=stewardObj[1], organization=Partners.objects.get(name=stewardObj[2]),
+                                     email=stewardObj[3],
+                                     tel_no=stewardObj[4],
+                                 ).save()
+
+    return 0
 
 
 def fill_database(request):
@@ -142,6 +206,7 @@ def fill_database(request):
 
 
 def index(request):
+
     #facilitydata = Facilities.objects.select_related('implementation').get(pk=1)
     facilities_info = Facility_Info.objects.prefetch_related('partner')\
                                                         .select_related('county') \
@@ -174,7 +239,7 @@ def index(request):
             dataObj["lat"] = row.lat if row.lat else ""
             dataObj["lon"] = row.lon if row.lon else ""
             dataObj["partner"] = row.partner.name if row.partner else ""
-            dataObj["agency"] = row.partner.agency.name if row.partner else ""
+            dataObj["agency"] = row.partner.agency.name if row.partner and row.partner.agency else ""
             dataObj["implementation"] = implementation
             dataObj["emr_type"] = emr_info.type.type if emr_info.type else ""
             dataObj["emr_status"] = emr_info.status if emr_info.status else ""
@@ -188,6 +253,7 @@ def index(request):
 
             facilitiesdata.append(dataObj)
     except Exception as e:
+        print('ERROR --------->', e)
         messages.add_message(request, messages.ERROR,
                              'A problem was encountered when fetching facility data. Please try again.')
         #return HttpResponseRedirect('/home')
@@ -213,7 +279,7 @@ def add_sub_counties(request):
         form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
 
-    return render(request, 'facilities/customizable_email.html', {'form': form, "title": "Add sub_counties"})
+    return render(request, 'facilities/add_sub_counties.html', {'form': form, "title": "Add sub_counties"})
 
 
 @login_required(login_url='/user/login/')
@@ -222,13 +288,14 @@ def add_facility_data(request):
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         form = Facility_Data_Form(request.POST)
-        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
-        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
-        form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
-        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
-        form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
-        form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
-        form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
+        form.fields['county'].choices = [("", "")] + [(i.id, i.name) for i in Counties.objects.all().order_by('name')]
+        form.fields['sub_county'].choices = [("", "")] + [(i.id, i.name) for i in Sub_counties.objects.all().order_by('name')]
+        form.fields['owner'].choices = [("", "")] + [(i.id, i.name) for i in Owner.objects.all()]
+        form.fields['partner'].choices = [("", "")] + [(i.id, i.name) for i in Partners.objects.all()]
+        form.fields['emr_type'].choices = [("", "")] + [(i.id, i.type) for i in EMR_type.objects.all()]
+        form.fields['hts_use'].choices = [("", "")] + [(i.id, i.hts_use_name) for i in HTS_use_type.objects.all()]
+        form.fields['hts_deployment'].choices = [("", "")] + [(i.id, i.deployment) for i in
+                                                              HTS_deployment_type.objects.all()]
 
         if form.is_valid():
             try:
@@ -239,7 +306,7 @@ def add_facility_data(request):
                     county = Counties.objects.get(pk=int(form.cleaned_data['county'])),
                     sub_county = Sub_counties.objects.get(pk=int(form.cleaned_data['sub_county'])),
                     owner = Owner.objects.get(pk=int(form.cleaned_data['owner'])),
-                    partner = Partners.objects.get(pk=int(form.cleaned_data['partner'])),
+                    partner = Partners.objects.get(pk=int(form.cleaned_data['partner'])) if form.cleaned_data['partner'] != "" else None,
                     #facilitydata.agency = facilitydata.partner.agency.name
                     lat = form.cleaned_data['lat'],
                     lon = form.cleaned_data['lon']
@@ -313,6 +380,7 @@ def add_facility_data(request):
                 messages.add_message(request, messages.SUCCESS, 'Facility was successfully added and can be viewed below!')
                 return HttpResponseRedirect('/home')
             except Exception as e:
+                print("ERROR --------> ", e)
                 messages.add_message(request, messages.ERROR,
                                      'A problem was encountered when submitting facility data. Please try again.')
         else:
@@ -322,14 +390,18 @@ def add_facility_data(request):
         # if a GET (or any other method) we'll create a blank form
     else:
         form = Facility_Data_Form()
+        # partner_choices = []
+        # partner_choices.append(("", "-- select --"))
+        # for i in Partners.objects.all():
+        #     partner_choices.append((i.id, i.name))
         #form['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
-        form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
-        form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.filter(county=30).order_by('name'))
-        form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
-        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
-        form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
-        form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
-        form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
+        form.fields['county'].choices = [("", "")] + [(i.id, i.name) for i in Counties.objects.all().order_by('name')]
+        form.fields['sub_county'].choices = [("", "")] + [(i.id, i.name) for i in Sub_counties.objects.all().order_by('name')]
+        form.fields['owner'].choices = [("", "")] + [(i.id, i.name) for i in Owner.objects.all()]
+        form.fields['partner'].choices = [("", "")] + [(i.id, i.name) for i in Partners.objects.all()]
+        form.fields['emr_type'].choices =[("", "")] + [(i.id, i.type) for i in EMR_type.objects.all()]
+        form.fields['hts_use'].choices = [("", "")] + [(i.id, i.hts_use_name) for i in HTS_use_type.objects.all()]
+        form.fields['hts_deployment'].choices = [("", "")] + [(i.id, i.deployment) for i in HTS_deployment_type.objects.all()]
 
     return render(request, 'facilities/update_facility.html', {'form': form, "title":"Add Facility"})
 
@@ -355,7 +427,7 @@ def update_facility_data(request, facility_id):
         form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
         form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
-        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
+        form.fields['partner'].choices = [("", "")] + [(i.id, i.name) for i in Partners.objects.all()]
         form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
         form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
         form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
@@ -365,8 +437,13 @@ def update_facility_data(request, facility_id):
                 unique_id_for_edit = uuid.uuid4()
 
                 # notify users of changes for approval ##### testing #####
-                current_users_name =request.user.first_name + " " + request.user.last_name
-                send_email(current_users_name, facility_id, facilitydata.mfl_code)
+                try:
+                    current_users_name =request.user.first_name + " " + request.user.last_name
+                    org_partner = int(form.cleaned_data['partner'])
+                    send_email(request.scheme, request.META['HTTP_HOST'], current_users_name, facility_id,
+                               facilitydata.mfl_code, org_partner)
+                except Exception as e:
+                    print("Email error ----->", e)
                 ##### testing #####
 
                 # Save the new category to the database.
@@ -376,11 +453,13 @@ def update_facility_data(request, facility_id):
                                                         sub_county=Sub_counties.objects.get(
                                                             pk=int(form.cleaned_data['sub_county'])),
                                                         owner=Owner.objects.get(pk=int(form.cleaned_data['owner'])),
-                                                        partner=Partners.objects.get(pk=int(form.cleaned_data['partner'])),
+                                                        partner=Partners.objects.get(pk=int(form.cleaned_data['partner'])) if form.cleaned_data['partner'] != "" else None,
                                                         # facilitydata.agency = facilitydata.partner.agency.name
                                                         lat=form.cleaned_data['lat'],
                                                         lon=form.cleaned_data['lon'],
-                                                               facility_info=Facility_Info.objects.get(pk=facility_id)
+                                                               facility_info=Facility_Info.objects.get(pk=facility_id),
+                                                               date_edited=datetime.now(),
+                                                                user_edited = User.objects.get(pk=request.user.id)
                                                         )
 
                 facility.save()
@@ -476,7 +555,7 @@ def update_facility_data(request, facility_id):
             'sub_county': facilitydata.sub_county.id,
             'owner': facilitydata.owner.id if facilitydata.owner else "",
             'partner': facilitydata.partner.id if facilitydata.partner else "",
-            'agency': facilitydata.partner.agency.name if facilitydata.partner else "",
+            'agency': facilitydata.partner.agency.name if facilitydata.partner and facilitydata.partner.agency else "",
             'lat': facilitydata.lat,
             'lon': facilitydata.lon,
             'CT': implementation_info.ct,
@@ -509,7 +588,7 @@ def update_facility_data(request, facility_id):
         form.fields['county'].choices = ((str(i.id), i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['sub_county'].choices = ((str(i.id), i.name) for i in Sub_counties.objects.filter(county=facilitydata.county.id).order_by('name'))
         form.fields['owner'].choices = ((str(i.id), i.name) for i in Owner.objects.all())
-        form.fields['partner'].choices = ((str(i.id), i.name) for i in Partners.objects.all())
+        form.fields['partner'].choices = [("", "")] + [(i.id, i.name) for i in Partners.objects.all()]
         form.fields['emr_type'].choices = ((str(i.id), i.type) for i in EMR_type.objects.all())
         form.fields['hts_use'].choices = ((str(i.id), i.hts_use_name) for i in HTS_use_type.objects.all())
         form.fields['hts_deployment'].choices = ((str(i.id), i.deployment) for i in HTS_deployment_type.objects.all())
@@ -520,7 +599,7 @@ def update_facility_data(request, facility_id):
     except Edited_Facility_Info.DoesNotExist:
         facility_edits = None
     return render(request, 'facilities/update_facility.html', {'facilitydata': facilitydata, 'facility_edits':facility_edits,
-                                                               'mhealth_info':mhealth_info, 'form': form, "title":"Update Facility data"})
+                                                               'mhealth_info':mhealth_info, 'form': form, "title":"Facility data"})
 
 
 #from django.conf import settings
@@ -546,7 +625,7 @@ def approve_facility_changes(request, facility_id):
         form.fields['county'].choices = ((i.id, i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['sub_county'].choices = ((i.id, i.name) for i in Sub_counties.objects.all().order_by('name'))
         form.fields['owner'].choices = ((i.id, i.name) for i in Owner.objects.all())
-        form.fields['partner'].choices = ((i.id, i.name) for i in Partners.objects.all())
+        form.fields['partner'].choices = [("", "")] + [(i.id, i.name) for i in Partners.objects.all()]
         form.fields['emr_type'].choices = ((i.id, i.type) for i in EMR_type.objects.all())
         form.fields['hts_use'].choices = ((i.id, i.hts_use_name) for i in HTS_use_type.objects.all())
         form.fields['hts_deployment'].choices = ((i.id, i.deployment) for i in HTS_deployment_type.objects.all())
@@ -561,7 +640,7 @@ def approve_facility_changes(request, facility_id):
                         county = Counties.objects.get(pk=int(form.cleaned_data['county'])),
                         sub_county = Sub_counties.objects.get(pk=int(form.cleaned_data['sub_county'])),
                         owner = Owner.objects.get(pk=int(form.cleaned_data['owner'])),
-                        partner = Partners.objects.get(pk=int(form.cleaned_data['partner'])),
+                        partner = Partners.objects.get(pk=int(form.cleaned_data['partner'])) if form.cleaned_data['partner'] != "" else None,
                         #facilitydata.agency = facilitydata.partner.agency.name
                         lat = form.cleaned_data['lat'],
                         lon = form.cleaned_data['lon'],
@@ -634,8 +713,8 @@ def approve_facility_changes(request, facility_id):
             'county': edited_facilitydata.county.id,
             'sub_county': edited_facilitydata.sub_county.id,
             'owner': edited_facilitydata.owner.id,
-            'partner': edited_facilitydata.partner.id,
-            'agency': edited_facilitydata.partner.agency.name,
+            'partner': edited_facilitydata.partner.id if edited_facilitydata.partner else "",
+            'agency': edited_facilitydata.partner.agency.name if edited_facilitydata.partner and edited_facilitydata.partner.agency else "",
             'lat': edited_facilitydata.lat,
             'lon': edited_facilitydata.lon,
             'CT': implementation_info.ct,
@@ -668,7 +747,7 @@ def approve_facility_changes(request, facility_id):
         form.fields['county'].choices = ((str(i.id), i.name) for i in Counties.objects.all().order_by('name'))
         form.fields['sub_county'].choices = ((str(i.id), i.name) for i in Sub_counties.objects.filter(county=edited_facilitydata.county.id).order_by('name'))
         form.fields['owner'].choices = ((str(i.id), i.name) for i in Owner.objects.all())
-        form.fields['partner'].choices = ((str(i.id), i.name) for i in Partners.objects.all())
+        form.fields['partner'].choices = [("", "")] + [(i.id, i.name) for i in Partners.objects.all()]
         form.fields['emr_type'].choices = ((str(i.id), i.type) for i in EMR_type.objects.all())
         form.fields['hts_use'].choices = ((str(i.id), i.hts_use_name) for i in HTS_use_type.objects.all())
         form.fields['hts_deployment'].choices = ((str(i.id), i.deployment) for i in HTS_deployment_type.objects.all())
@@ -676,13 +755,12 @@ def approve_facility_changes(request, facility_id):
     return render(request, 'facilities/update_facility.html', {'facilitydata': edited_facilitydata, 'form': form, "title":"Changes Awaiting Approval"})
 
 
-@login_required(login_url='/user/login/')
 def delete_facility(request, facility_id):
-    Implementation_type.objects.get(facility_info=facility_id).delete()
-    HTS_Info.objects.get(facility_info=facility_id).delete()
-    EMR_Info.objects.get(facility_info=facility_id).delete()
-    IL_Info.objects.get(facility_info=facility_id).delete()
-    MHealth_Info.objects.get(facility_info=facility_id).delete()
+    # Implementation_type.objects.get(facility_info=facility_id).delete() if Implementation_type.objects.get(facility_info=facility_id) else ""
+    # HTS_Info.objects.get(facility_info=facility_id).delete() if HTS_Info.objects.get(facility_info=facility_id) else ""
+    # EMR_Info.objects.get(facility_info=facility_id).delete() if EMR_Info.objects.get(facility_info=facility_id) else ""
+    # IL_Info.objects.get(facility_info=facility_id).delete() if IL_Info.objects.get(facility_info=facility_id) else ""
+    # MHealth_Info.objects.get(facility_info=facility_id).delete() if MHealth_Info.objects.get(facility_info=facility_id) else ""
     Facility_Info.objects.get(pk=facility_id).delete()
 
     messages.add_message(request, messages.SUCCESS, "Facility successfully deleted!")
@@ -733,7 +811,7 @@ def get_partners_list(request):
 
         partnerObj = {}
         partnerObj['partner'] = row.id
-        partnerObj['agency'] = {'id': row.agency.id, 'name': row.agency.name}
+        partnerObj['agency'] = {'id': row.agency.id, 'name': row.agency.name} if row.agency else {}
 
         partners_list.append(partnerObj)
 
@@ -752,3 +830,5 @@ def get_agencies_list(request):
         agencies_list.append(agencyObj)
 
     return JsonResponse(agencies_list, safe=False)
+  
+  
