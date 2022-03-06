@@ -830,3 +830,5 @@ def get_agencies_list(request):
         agencies_list.append(agencyObj)
 
     return JsonResponse(agencies_list, safe=False)
+  
+  
