@@ -43,7 +43,9 @@
 
 
     <script type="text/javascript">
-       $.getJSON('http://127.0.0.1:8000/facilities/sub_counties', function(data) {
+        var base_url = window.location.origin;
+
+       $.getJSON(base_url +'/facilities/sub_counties', function(data) {
                 console.log(data)
                 localStorage.setItem('subcounties', JSON.stringify(data)); //store a key/value
          });

@@ -1,29 +1,32 @@
 
 $(document).ready(function() {
+        var base_url = window.location.origin;
+
         // on page load, do the following
         if (disable_fields === true){
             $('#facility_form :input').prop("disabled",true);
         }
 
-         $.getJSON('http://127.0.0.1:8000/facilities/get_partners_list', function(data) {
+         $.getJSON(base_url + '/facilities/get_partners_list', function(data) {
             localStorage.setItem('sdp_agencies', JSON.stringify(data)); //store a key/value
          });
 
          //   url: 'http://127.0.0.1:8000/facilities/sub_counties',
-         $.getJSON('http://127.0.0.1:8000/facilities/sub_counties', function(data) {
+         $.getJSON(base_url + '/facilities/sub_counties', function(data) {
                 console.log(data)
                 localStorage.setItem('subcounties', JSON.stringify(data)); //store a key/value
          });
 
+         //$("#id_partner").val("").trigger("change");
          //$("#id_county").val("36").change();
-         $("#id_county").trigger("change");
-         $("#id_partner").trigger("change");
+         //$("#id_county").trigger("change");
+         //$("#id_partner").trigger("change");
 
-         setTimeout(function() {
-             $("#id_county").trigger("change");
-            //$("#id_sub_county").val("30").trigger("change");
-            $("#id_sub_county").val(String(subcounty_id_saved));
-        }, 2000);
+        //  setTimeout(function() {
+        // }, 2000);
+
+         //$("#id_county").trigger("change");
+        //$("#id_sub_county").val(String(subcounty_id_saved));
 
          // if il or hts or ct was saved in DB, slide down divs containing their info
          if ($("#id_IL").is(":checked")) {
@@ -86,6 +89,9 @@ $("#id_partner").change(function(){
 
     var value = $("#id_partner").val();
 
+    if (value === ""){
+        $("#id_agency").val("--");
+    }
     $.each( JSON.parse(retrievedsdp_agencies) , function(index, item) {
 
        if(item["partner"] === parseInt(value)){
