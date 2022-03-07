@@ -1,2 +1,9 @@
 venv/
 .idea/
+/facilities/kenyahmis_stewards.xlsx
+/facilities/stewards.json
+/facilities/one_time_startup.py
+main.py
+newdata.json
+mfldbdump.sql
+setup.sh
