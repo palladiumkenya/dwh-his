@@ -3,6 +3,10 @@ venv/
 /facilities/kenyahmis_stewards.xlsx
 /facilities/stewards.json
 /facilities/one_time_startup.py
+/facilities/HIS Implementation List .xlsx
+basic_data.json
+facilites_from_excel.json
+complete_data.json
 main.py
 newdata.json
 mfldbdump.sql
