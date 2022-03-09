@@ -49,18 +49,17 @@ def signup(request):
         "nonce": generate_nonce()
     }
     authority= "https://localhost:5006"
-    client_id= "dwh.spa"
-    #redirect_uri= "http%253A%252F%252Flocalhost%253A8000%252Fsignin-oidc%252F"
-    redirect_uri= "https%253A%252F%252F16b9-41-80-22-81.ngrok.io"
+    client_id= "nascop.spa"
+    redirect_uri= "https%253A%252F%252Flocalhost%253A8000%252Fsignin-oidc%252F"
     response_type= "id_token token"
     scope= "openid profile apiApp"
     post_logout_redirect_uri= "http://localhost:8000"
     state= generate_nonce()
     nonce= generate_nonce()
 
-    ReturnUrl = '?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback'
+    ReturnUrl = '?ReturnUrl=%2Fnascop%2Fconnect%2Fauthorize%2Fcallback'
     client_id = '%3Fclient_id%3D'+client_id
-    url = 'https://localhost:5006/Account/Login'+ReturnUrl+client_id
+    url = 'https://auth.kenyahmis.org/nascop/Account/Login'+ReturnUrl+client_id
 
     auth_token_url = url+'%26redirect_uri%3D'+redirect_uri+'%26response_type%3Did_token%2520token%26scope%3Dopenid%2520profile%2520apiApp%26' \
                                                        'state%3D'+state+'%26nonce%3D'+nonce

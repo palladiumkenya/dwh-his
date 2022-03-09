@@ -37,7 +37,9 @@ INSTALLED_APPS = [
     # 'rest_framework.authtoken',
     # #'oauth2_provider',
     # 'corsheaders',
-    #"sslserver",
+    # "sslserver",
+    #
+    # "django_extensions",
 
     'crispy_forms',
     'users.apps.UsersConfig',
