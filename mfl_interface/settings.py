@@ -33,16 +33,15 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
-    'rest_framework',
-    'rest_framework.authtoken',
-    'oauth2_provider',
-    'corsheaders',
+    # 'rest_framework',
+    # 'rest_framework.authtoken',
+    # #'oauth2_provider',
+    # 'corsheaders',
+    #"sslserver",
 
     'crispy_forms',
     'users.apps.UsersConfig',
     'facilities.apps.FacilitiesConfig',
-
-    "sslserver",
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -68,18 +67,18 @@ CORS_ORIGIN_METHODS = {
     'GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'
 }
 
-OAUTH2_PROVIDER = {
-    'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'scope': 'Access to your groups'}
-}
+# OAUTH2_PROVIDER = {
+#     'SCOPES': {'read': 'Read scope', 'write': 'Write scope', 'scope': 'Access to your groups'}
+# }
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',  # <-- And here
-    ],
-    'DEFAULT_PERMISSION_CLASSES':(
-                'rest_framework.permissions.AllowAny',
-    ),
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',  # <-- And here
+#     ],
+#     'DEFAULT_PERMISSION_CLASSES':(
+#                 'rest_framework.permissions.AllowAny',
+#     ),
+# }
 
 
 ROOT_URLCONF = 'mfl_interface.urls'

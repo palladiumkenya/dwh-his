@@ -22,7 +22,7 @@ urlpatterns = [
     path('', include('users.urls')),
     path('admin/', admin.site.urls),
 
-    path('oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
+    # path('oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]
 
 # create_db()
