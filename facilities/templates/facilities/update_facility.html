@@ -69,16 +69,16 @@
                     <div class="col-md-2">
                         <h6  class="green_text_color">EMR Information</h6>
                     </div>
-                    <div id="EMR" class="row section mb-4 col-md-10">
+                    <div id="EMR" class="row section mb-4 col-md-8">
                         <b>EMR Information</b>
-                        <div class="form-group col-md-4 mb-4">
+                        <div class="form-group col-md-6 mb-4">
                             {{ form.emr_type|as_crispy_field }}
                         </div>
-                        <div class="form-group col-md-4 mb-4">
+                        <div class="form-group col-md-6 mb-4">
                             {{ form.emr_status|as_crispy_field }}
                         </div>
 
-                        <div class="form-group col-md-6 mb-0">
+                        <div class="form-group col-md-10 mb-0">
                             <b>EMR modules</b>
                             <div class="d-flex justify-content-between">
                                 {{ form.ovc_offered|as_crispy_field }}
@@ -120,13 +120,13 @@
                     </div>
                     <div id="HTS" class="row section mb-4 col-md-8">
                         <b>HTS Information</b>
-                        <div class="form-group col-md-3 mb-0">
+                        <div class="form-group col-md-4 mb-0">
                             {{ form.hts_use|as_crispy_field }}
                         </div>
-                        <div class="form-group col-md-3 mb-0">
+                        <div class="form-group col-md-4 mb-0">
                             {{ form.hts_deployment|as_crispy_field }}
                         </div>
-                        <div class="form-group col-md-3 mb-0">
+                        <div class="form-group col-md-4 mb-0">
                             {{ form.hts_status|as_crispy_field }}
                         </div>
                     </div>
@@ -146,7 +146,7 @@
                         <div class="form-group col-md-3 mb-0">
                             {{ form.webADT_pharmacy|as_crispy_field }}
                         </div>
-                        <div class="form-group col-md-3 mb-0">
+                        <div class="form-group col-md-6 mb-0">
                             {{ form.il_status|as_crispy_field }}
                         </div>
                         <div class="form-group col-md-5 mb-0">
