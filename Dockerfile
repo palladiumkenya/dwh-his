@@ -38,7 +38,7 @@ COPY . /project
 #RUN mkdir -p /tmp/app/webapp/mysqld && chmod -R 777 /tmp/app/webapp/mysqld
 #ADD mfldbdump.sql /docker-entrypoint-initdb.d
 
-ADD newdata.json /project
+ADD updated_db_data.json /project
 
 # port where the Django app runs
 EXPOSE 8000

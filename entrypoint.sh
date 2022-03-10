@@ -10,7 +10,7 @@ echo "${0}: collecting statics."
 python manage.py collectstatic --noinput
 
 echo "${0}: Dumping data into tables in DB created."
-python manage.py loaddata newdata.json
+python manage.py loaddata updated_db_data.json
 
 cp -rv static/* static_shared/
 

@@ -19,9 +19,9 @@ from django.urls import include, path
 
 urlpatterns = [
     path('', include('facilities.urls')),
-    path('user/', include('users.urls')),
+    path('', include('users.urls')),
     path('admin/', admin.site.urls),
-
+    # path(r'^openid/', include('oidc_provider.urls', namespace='oidc_provider')),
     # path('oauth/', include('oauth2_provider.urls', namespace='oauth2_provider')),
 ]
 

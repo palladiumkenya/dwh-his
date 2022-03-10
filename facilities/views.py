@@ -446,11 +446,12 @@ def index(request):
         #                      'A problem was encountered when fetching facility data. Please try again.')
         #return HttpResponseRedirect('/home')
 
-    #messages.add_message(request, messages.SUCCESS, 'Welcome to DWH-HIS Portal')
-    return render(request, 'facilities/facilities_list.html', {'facilitiesdata': facilitiesdata})
+    loggedin_user =request.session["logged_in_username"] if 'logged_in_username' in request.session else None
+    return render(request, 'facilities/facilities_list.html', {'facilitiesdata': facilitiesdata,
+                                                               'loggedin_user':loggedin_user})
 
 
-@login_required(login_url='/user/login/')
+@login_required(login_url='/login/')
 def add_sub_counties(request):
     if request.method == 'POST':
         form = Sub_Counties_Form(request.POST)
@@ -470,8 +471,10 @@ def add_sub_counties(request):
     return render(request, 'facilities/add_sub_counties.html', {'form': form, "title": "Add sub_counties"})
 
 
-@login_required(login_url='/user/login/')
+@login_required(login_url='/login/')
 def add_facility_data(request):
+    # if 'logged_in_username' not in request.session:
+    #     return HttpResponseRedirect("/signup")
 
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -594,8 +597,11 @@ def add_facility_data(request):
     return render(request, 'facilities/update_facility.html', {'form': form, "title":"Add Facility"})
 
 
-@login_required(login_url='/user/login/')
+@login_required(login_url='/login/')
 def update_facility_data(request, facility_id):
+    # if 'logged_in_username' not in request.session:
+    #     return HttpResponseRedirect("/signup")
+
     # does item exist in db
     facility = get_object_or_404(Facility_Info, pk=facility_id)
 
@@ -794,9 +800,12 @@ def update_facility_data(request, facility_id):
                                                                'mhealth_info':mhealth_info, 'form': form, "title":"Facility data"})
 
 
-#from django.conf import settings
-@login_required(login_url='/user/login/')
+from django.conf import settings
+@login_required(login_url='/login/')
 def approve_facility_changes(request, facility_id):
+    # if 'logged_in_username' not in request.session:
+    #     return HttpResponseRedirect("/signup")
+
     # does item exist in db
     facility_edits = get_object_or_404(Edited_Facility_Info, pk=facility_id)
 
@@ -962,7 +971,7 @@ def delete_facility(request, facility_id):
     return HttpResponseRedirect('/home')
 
 
-@login_required(login_url='/user/login/')
+@login_required(login_url='/login/')
 def partners(request):
     partners_data = Partners.objects.prefetch_related('agency').all()
 

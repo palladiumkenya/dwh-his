@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+
+</head>
+<body>
+<script>
+    const currentURL = window.location.href;
+    const spliturl = (currentURL.split("#")[1]).split("&");
+    var id_token = spliturl[0]
+    var access_token = spliturl[1]
+    var token_type= spliturl[2]
+    var expires_in= spliturl[3]
+    var scope = spliturl[4]
+    var state = spliturl[5]
+    var session_state = spliturl[6]
+
+    console.log(spliturl[0].split("=")[1])
+
+    const params  = {
+        "id_token": spliturl[0].split("=")[1],
+        "access_token": spliturl[1].split("=")[1],
+        "token_type": spliturl[2].split("=")[1],
+        "expires_in": spliturl[3].split("=")[1],
+        "scope": spliturl[4].split("=")[1],
+        "state": spliturl[5].split("=")[1],
+        "session_state": spliturl[6].split("=")[1]
+    }
+    base_url= window.location.origin;
+    $.post( base_url+"/store_tokens", params );
+    $(location).attr("href", base_url+"/log_user_in");
+</script>
+
+
+</body>
+</html>

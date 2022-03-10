@@ -35,15 +35,14 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     # 'rest_framework',
     # 'rest_framework.authtoken',
-    # #'oauth2_provider',
+    # 'oauth2_provider',
     # 'corsheaders',
-    # "sslserver",
-    #
-    # "django_extensions",
 
     'crispy_forms',
     'users.apps.UsersConfig',
     'facilities.apps.FacilitiesConfig',
+
+        # "sslserver",
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -169,7 +168,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-LOGIN_URL = '/user/login/'
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = 'index'
 LOGOUT_REDIRECT_URL = 'index'
 

@@ -8,7 +8,6 @@ basic_data.json
 facilites_from_excel.json
 complete_data.json
 main.py
-newdata.json
 mfldbdump.sql
 setup.sh
 cert.crt

@@ -8,10 +8,11 @@ from . import views
 
 urlpatterns = [
     path('signup/', views.signup, name='signup'),
-    path('connect/authorize/callback/', views.signup_callback, name='signup_callback'),
-    path('signin-oidc/', views.signin_oidc, name='signin_oidc'),
-    path('hello/', views.HelloView.as_view(), name='hello'),
-    path('', views.HelloView.as_view(), name='hello'),
+    # path('connect/authorize/callback/', views.signup_callback, name='signup_callback'),
+    path('signin-oidc', views.signin_oidc, name='signin_oidc'),
+    path('logout_user/', views.logout_user, name='logout_user'),
+    path('store_tokens', views.store_tokens, name='store_tokens'),
+    path('log_user_in', views.log_user_in, name='log_user_in'),
 
     path('register/', views.register, name='register'),
     path('login/', auth_views.LoginView.as_view(template_name='users/login.html', redirect_authenticated_user=True), name='login'),
