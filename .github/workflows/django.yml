@@ -53,6 +53,7 @@ jobs:
         DATABASE_HOST: 127.0.0.1
         DBPORT: $
         EMAIL_HOST_PASSWORD: ${{secrets.EMAIL_HOST_PASSWORD}}
+        EMAIL_HOST_USER: ${{secrets.MAIL_SECRET}}
   build:
     runs-on: ubuntu-latest
     steps:
