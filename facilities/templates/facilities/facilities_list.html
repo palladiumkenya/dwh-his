@@ -38,23 +38,17 @@
                 <td>{{data.county.name}}</td>
                 <td>{{data.sub_county.name}}</td>
                 <td>{{data.owner}}</td>
-                <!--<td>{{data.lat}}</td>
-                <td>{{data.lon}}</td>-->
                 <td>{{data.partner}}</td>
                 <td>{{data.agency}}</td>
-                <!--<td>{% for i in data.implementation %}
-                        {{ i }}
-                    {% endfor %}
-                </td>-->
                 <td>{{data.emr_type}}</td>
                 <td>{{data.emr_status}}</td>
-                <!--<td>{{data.hts_use}}</td>
-                <td>{{data.hts_deployment}}</td>
-                <td>{{data.hts_status}}</td>
-                <td>{{data.il_status}}</td>-->
+
                 <td><a href="/facilities/update_facility/{{data.id}}" class="mr-2"><i class="fa-solid fa-pen-to-square fa-2x text-success"></i></a>
-{#                    <a href="/facilities/delete_facility/{{data.id}}"></a>#}
-                    <i class="fa-solid fa-trash-can fa-lg text-danger" onclick='confirm_delete("{{data.id}}")'></i>
+                    {% if user.is_authenticated %}
+                        <i class="fa-solid fa-trash-can fa-lg text-danger" onclick='confirm_delete("{{data.id}}")'></i>
+                    {% else %}
+                        <a href="/login"><i class="fa-solid fa-trash-can fa-2x text-danger"></i></a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

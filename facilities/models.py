@@ -21,6 +21,13 @@ class SDP_agencies(models.Model):
 class Partners(models.Model):
     name = models.CharField(max_length=100)
     agency = models.ForeignKey(SDP_agencies, on_delete=models.CASCADE, default=None, blank=True, null=True)
+    #organization_id = models.UUIDField(default=None, blank=True, null=True)
+
+
+class Organizations(models.Model):
+    name = models.CharField(max_length=100)
+    organization_id = models.CharField(max_length=100, default=None, blank=True, null=True)
+    access_right = models.CharField(max_length=100, default=None, blank=True, null=True)
 
 
 class EMR_type(models.Model):
@@ -78,7 +85,9 @@ class Edited_Facility_Info(models.Model):
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
     facility_info = models.ForeignKey(Facility_Info, on_delete=models.CASCADE)
     date_edited = models.DateTimeField(default=datetime.now, blank=True, null=True)
-    user_edited = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True, null=True) #id of who edited
+    #user_edited = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True, null=True) #id of who edited
+    user_edited_name = models.CharField(max_length=100, default=None)
+    user_edited_email = models.CharField(max_length=100, default=None)
 
 
 class EMR_Info(models.Model):
@@ -110,6 +119,9 @@ class IL_Info(models.Model):
     # consider Boolean field
     status = models.CharField(max_length=100, default=None, blank=True, null=True)
     three_PM = models.BooleanField(default=False, blank=True, null=True)
+    air = models.BooleanField(default=False, blank=True, null=True)
+    Ushauri = models.BooleanField(default=False, blank=True, null=True)
+    Mlab = models.BooleanField(default=False, blank=True, null=True)
     webADT_registration = models.BooleanField(default=False, blank=True, null=True)
     webADT_pharmacy = models.BooleanField(default=False, blank=True, null=True)
     for_version = models.CharField(max_length=20, default="original")

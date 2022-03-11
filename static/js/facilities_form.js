@@ -31,25 +31,28 @@ $(document).ready(function() {
          // if il or hts or ct was saved in DB, slide down divs containing their info
          if ($("#id_IL").is(":checked")) {
              $("#IL_info").slideDown();
-            // $('input[name="ushauri"]:first').prop("disabled", true);
-            // $('input[name="mlab"]:first').prop("disabled", true);
-            // $('input[name="c4c"]:first').prop("disabled", true);
-             $('#MHealth_info input[name="ushauri"]').prop("disabled", true);
-             $('#MHealth_info input[name="mlab"]').prop("disabled", true);
-             $('#MHealth_info input[name="c4c"]').prop("disabled", true);
+            $("#id_il_status").prop('required',true);
+            // $("#id_il_status").prepend('<option value="">trying</option>');
+             // $('#MHealth_info input[name="ushauri"]').prop("disabled", true);
+             // $('#MHealth_info input[name="mlab"]').prop("disabled", true);
+             // $('#MHealth_info input[name="c4c"]').prop("disabled", true);
         }else{
-             //$('#IL_info input[name="mlab"]').val(mlab);
-             $('#IL_info input[name="mlab"]').prop('checked', false);
-             $('#IL_info input[name="ushauri"]').prop('checked', false);
-             $('#IL_info input[name="c4c"]').prop('checked', false);
+
+             // $('#IL_info input[name="mlab"]').prop('checked', false);
+             // $('#IL_info input[name="ushauri"]').prop('checked', false);
+             // $('#IL_info input[name="c4c"]').prop('checked', false);
          }
         if ($("#id_CT").is(":checked")) {
             $("#EMR_info").slideDown();
             $("#id_emr_type").prop('required',true);
+            $("#id_emr_status").prop('required', true);
         }
 
         if ($("#id_HTS").is(":checked")) {
             $("#HTS_info").slideDown();
+            $("#id_hts_use").prop('required',true);
+            $("#id_hts_deployment").prop('required', true);
+            $("#id_hts_status").prop('required',true);
         }
 
 });
@@ -120,27 +123,27 @@ $("#id_IL").click(function(){
     if ($("#id_IL").is(":checked")) {
         console.log("knowing");
         console.log($('#MHealth_info input[name="ushauri"]').val());
-        $('#MHealth_info input[name="ushauri"]').prop("disabled", true);
-        $('#MHealth_info input[name="mlab"]').prop("disabled", true);
-        $('#MHealth_info input[name="c4c"]').prop("disabled", true);
+        // $('#MHealth_info input[name="ushauri"]').prop("disabled", true);
+        // $('#MHealth_info input[name="mlab"]').prop("disabled", true);
+        // $('#MHealth_info input[name="c4c"]').prop("disabled", true);
         // // set the values
-        if ($('#MHealth_info input[name="ushauri"]').is(":checked")) {
-            $('#IL_info input[name="ushauri"]').prop('checked', true);
-        }
-        if ($('#MHealth_info input[name="mlab"]').is(":checked")) {
-            $('#IL_info input[name="mlab"]').prop('checked', true);
-        }
-        if ($('#MHealth_info input[name="c4c"]').is(":checked")) {
-            $('#IL_info input[name="c4c"]').prop('checked', true);
-        }
+        // if ($('#MHealth_info input[name="ushauri"]').is(":checked")) {
+        //     $('#IL_info input[name="ushauri"]').prop('checked', true);
+        // }
+        // if ($('#MHealth_info input[name="mlab"]').is(":checked")) {
+        //     $('#IL_info input[name="mlab"]').prop('checked', true);
+        // }
+        // if ($('#MHealth_info input[name="c4c"]').is(":checked")) {
+        //     $('#IL_info input[name="c4c"]').prop('checked', true);
+        // }
     }else{
         // uncheck check fields
         $('#IL_info input[name="ushauri"]').prop('checked', false);
         $('#IL_info input[name="mlab"]').prop('checked', false);
         $('#IL_info input[name="c4c"]').prop('checked', false);
         // enable check fields
-        $('#MHealth_info input[name="ushauri"]').prop("disabled", false);
-        $('#MHealth_info input[name="mlab"]').prop("disabled", false);
-        $('#MHealth_info input[name="c4c"]').prop("disabled", false);
+        // $('#MHealth_info input[name="ushauri"]').prop("disabled", false);
+        // $('#MHealth_info input[name="mlab"]').prop("disabled", false);
+        // $('#MHealth_info input[name="c4c"]').prop("disabled", false);
     }
 });

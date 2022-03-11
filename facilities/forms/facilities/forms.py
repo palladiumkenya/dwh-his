@@ -45,7 +45,10 @@ class Facility_Data_Form(forms.Form):
     il_status = forms.ChoiceField(label='IL Status', required=False,
                                    choices=(('',''), ('Active','Active'),('Stalled/Inactive', 'Stalled/Inactive'),
                                             ('Discontinued', 'Discontinued')))
-    three_PM = forms.BooleanField(label='3PM', required=False)
+    il_three_PM = forms.BooleanField(label='3PM', required=False)
+    il_air = forms.BooleanField(label='AIR', required=False)
+    il_ushauri = forms.BooleanField(label='Ushauri', required=False)
+    il_mlab = forms.BooleanField(label='MLab', required=False)
     webADT_registration =forms.BooleanField(label='WebADT Registration', required=False)
     webADT_pharmacy = forms.BooleanField(label='WebADT Pharmacy', required=False)
     # emr info
@@ -57,12 +60,12 @@ class Facility_Data_Form(forms.Form):
     kp_offered = forms.BooleanField(label='KP', required=False)
     lab_man_offered = forms.BooleanField(label='Lab Manifest', required=False)
     # mhealth info
-    ushauri = forms.BooleanField(label='Ushauri', required=False)
-    mlab = forms.BooleanField(label='MLab', required=False)
-    nishauri = forms.BooleanField(label='Nishauri', required=False)
-    c4c = forms.BooleanField(label='C4C', required=False)
-    art = forms.BooleanField(label='ART Directory', required=False)
-    psurvey = forms.BooleanField(label='PSurvey', required=False)
+    mhealth_ushauri = forms.BooleanField(label='Ushauri', required=False)
+    mhealth_mlab = forms.BooleanField(label='MLab', required=False)
+    mhealth_nishauri = forms.BooleanField(label='Nishauri', required=False)
+    mhealth_c4c = forms.BooleanField(label='C4C', required=False)
+    mhealth_art = forms.BooleanField(label='ART Directory', required=False)
+    mhealth_psurvey = forms.BooleanField(label='PSurvey', required=False)
 
     def __init__(self, *args, **kwargs):
         super(Facility_Data_Form, self).__init__(*args, **kwargs)

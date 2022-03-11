@@ -57,43 +57,6 @@ def signup(request):
 
     return redirect(auth_token_url)
 
-    # authority= "https://localhost:5006"
-    # client_id= "dwh.his"
-    # redirect_uri="http://localhost:8000/signin-oidc"
-    # response_type= "id_token token"
-    # scope= "openid profile apiApp"
-    # post_logout_redirect_uri= "http://localhost:8000"
-    # state= generate_nonce()
-    # nonce= generate_nonce()
-    # ReturnUrl = '?ReturnUrl=/connect/authorize/callback'
-    # client_id = '?client_id='+client_id
-    #
-    # base = 'https://localhost:5006/Account/Login' + ReturnUrl + client_id
-    # full_url = base+'&redirect_uri='+redirect_uri+'&response_type='+response_type+'&scope='+scope+'&' \
-    #                                                     'state='+state+'&nonce='+nonce
-    # auth_url = urllib.parse.quote(full_url)
-
-
-
-# def signup_callback(request):
-#     config = {
-#         "authority": "https://localhost:5006",
-#         "client_id": "dwh.spa",
-#         "redirect_uri": "http://localhost:3000/#/signin-oidc#",
-#         "response_type": "id_token token",
-#         "scope": "openid profile apiApp",
-#         "post_logout_redirect_uri": "http://localhost:8000",
-#         "state": generate_nonce(),
-#         "nonce": generate_nonce()
-#     }
-#     client_id = "dwh.spa"
-#     ReturnUrl = '?ReturnUrl=%2Fconnect%2Fauthorize%2Fcallback'
-#     client_id = '%3Fclient_id%3D' + client_id
-#     url = 'https://localhost:5006/Account/Login' + ReturnUrl + client_id
-#     results = requests.get(url, config, verify=False)
-#     print(results.content)
-#     return HttpResponse(results.status_code)
-
 
 def signin_oidc(request):
 
@@ -137,8 +100,13 @@ def log_user_in(request):
     print('response ====================>', response.status_code)
 
     fullname = json.loads(response.content.decode('utf-8'))['FullName']
+    organization = json.loads(response.content.decode('utf-8'))['OrganizationId']
+    email = json.loads(response.content.decode('utf-8'))['email']
     request.session["logged_in_username"] = fullname
+    request.session["logged_in_user_org"] = organization
+    request.session["logged_in_user_email"] = email
     print(json.loads(response.content.decode('utf-8'))['FullName'])
+    print('what is the email',json.loads(response.content.decode('utf-8'))['email'], request.session["logged_in_user_email"])
 
     return HttpResponseRedirect('/')
 
@@ -160,6 +128,8 @@ def logout_user(request):
 
     try:
         del request.session['logged_in_username']
+        del request.session["logged_in_user_org"]
+        del request.session["logged_in_user_email"]
         del request.session["access_token"]
         del request.session["id_token"]
         del request.session["state"]
@@ -168,4 +138,8 @@ def logout_user(request):
         pass
 
     return HttpResponseRedirect(url)
+
+
+
+
 
