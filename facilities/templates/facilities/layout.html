@@ -59,7 +59,7 @@
               </li>
             </ul>
               {% if user.is_authenticated %}
-                  <div class="d-flex justify-content-end"><p class="text-white">Welcome, {{user.fullname}}</p><a href="/logout_user">Logout</a></div>
+                  <div class="d-flex justify-content-end"><p class="text-white">Welcome, {{user.fullname}}</p><a href="/logout">Logout</a></div>
               {% else %}
                     <a href="/login" class="btn green_bg_color text-white">Login</a>
               {% endif %}
