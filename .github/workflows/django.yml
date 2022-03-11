@@ -37,7 +37,7 @@ jobs:
       run: python manage.py migrate
       env: 
         DBENGINE: django.db.backends.mysql
-        DBNAME: mysql
+        DATABASE_NAME: mysql
         DATABASE_USER: root
         DATABASE_PASSWORD: zergling
         DATABASE_HOST: 127.0.0.1
@@ -47,7 +47,7 @@ jobs:
         python manage.py test
       env: 
         DBENGINE: django.db.backends.mysql
-        DBNAME: mysql
+        DATABASE_NAME: mysql
         DATABASE_USER: root
         DATABASE_PASSWORD: zergling
         DATABASE_HOST: 127.0.0.1
