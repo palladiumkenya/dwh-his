@@ -40,7 +40,7 @@ jobs:
         DBNAME: mysql
         DBUSER: root
         DBPASSWORD: zergling
-        DBHOST: 127.0.0.1
+        DBHOST: his_mysql_1
         DBPORT: $
     - name: Run Tests
       run: |
@@ -50,7 +50,7 @@ jobs:
         DBNAME: mysql
         DBUSER: root
         DBPASSWORD: zergling
-        DBHOST: 127.0.0.1
+        DBHOST: his_mysql_1
         DBPORT: $
   build:
     runs-on: ubuntu-latest
