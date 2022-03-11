@@ -38,8 +38,8 @@ jobs:
       env: 
         DBENGINE: django.db.backends.mysql
         DBNAME: mysql
-        DBUSER: root
-        DBPASSWORD: zergling
+        DATABASE_USER: root
+        DATABASE_PASSWORD: zergling
         DATABASE_HOST: 127.0.0.1
         DBPORT: $
     - name: Run Tests
@@ -48,8 +48,8 @@ jobs:
       env: 
         DBENGINE: django.db.backends.mysql
         DBNAME: mysql
-        DBUSER: root
-        DBPASSWORD: zergling
+        DATABASE_USER: root
+        DATABASE_PASSWORD: zergling
         DATABASE_HOST: 127.0.0.1
         DBPORT: $
   build:
