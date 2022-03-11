@@ -52,6 +52,7 @@ jobs:
         DATABASE_PASSWORD: zergling
         DATABASE_HOST: 127.0.0.1
         DBPORT: $
+        EMAIL_HOST_PASSWORD: ${{secrets.EMAIL_HOST_PASSWORD}}
   build:
     runs-on: ubuntu-latest
     steps:
