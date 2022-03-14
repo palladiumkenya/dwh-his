@@ -30,6 +30,13 @@ class Organizations(models.Model):
     access_right = models.CharField(max_length=100, default=None, blank=True, null=True)
 
 
+class Organization_stewards(models.Model):
+    steward = models.CharField(max_length=100)
+    organization = models.ForeignKey(Partners, on_delete=models.CASCADE)
+    email = models.CharField(max_length=100)
+    tel_no = models.IntegerField(default=None, blank=True, null=True)
+
+
 class EMR_type(models.Model):
     type = models.CharField(max_length=100)
 
@@ -52,11 +59,11 @@ class IL_modules(models.Model):
     name = models.CharField(max_length=100)
 
 
-class Organization_stewards(models.Model):
-    steward = models.CharField(max_length=100)
-    organization = models.ForeignKey(Partners, on_delete=models.CASCADE)
-    email = models.CharField(max_length=100)
-    tel_no = models.IntegerField(default=None, blank=True, null=True)
+class MFL_codes(models.Model):
+    code = models.IntegerField(default=None, blank=True, null=True)
+    current_page = models.IntegerField(default=None, blank=True, null=True)
+    current_index = models.IntegerField(default=None, blank=True, null=True)
+    partner = models.ForeignKey(Partners, on_delete=models.CASCADE, default=None, blank=True, null=True)
 
 
 class Facility_Info(models.Model):

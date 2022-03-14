@@ -58,10 +58,10 @@
                 <a class="nav-link" href="#"></a>
               </li>
             </ul>
-              {% if user.is_authenticated %}
-                  <div class="d-flex justify-content-end"><p class="text-white">Welcome, {{user.fullname}}</p><a href="/logout">Logout</a></div>
+              {% if loggedin_user %}
+                  <div class="d-flex justify-content-end"><p class="text-white">Welcome, {{loggedin_user}}</p><a href="/logout_user">Logout</a></div>
               {% else %}
-                    <a href="/login" class="btn green_bg_color text-white">Login</a>
+                    <a href="/signup" class="btn green_bg_color text-white">Login</a>
               {% endif %}
 
 

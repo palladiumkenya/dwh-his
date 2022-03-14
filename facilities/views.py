@@ -114,6 +114,69 @@ def send_customized_email(request):
     return HttpResponse(0)
 
 
+def fetch_sdp_and_agencies(request):
+    file = os.path.join(Path(__file__).resolve().parent.parent, "facilities/HIS Implementation List .xlsx")
+    # make json sheet of excel file
+    excel_data_df = pd.read_excel(file, sheet_name='Facilities')
+    # json_str = excel_data_df.to_json()
+    main_sdps = []
+    for num in range(0,13720):
+        facilityObj = {}
+        facilityObj['Facilitycode'] = int(excel_data_df['Facilitycode'][num])
+        facilityObj['SDP'] = excel_data_df['Implementing_Mechanism_Name'][num] if str(excel_data_df['Implementing_Mechanism_Name'][num]) != "nan" \
+                            else ""
+
+        main_sdps.append(facilityObj)
+    # print(main_sdps)
+    # print('Excel Sheet to JSON:\n', json_str)
+    jsondata = json.dumps(main_sdps)
+    f = open("sdps_and_agencies.json", "w+")
+    f.write(jsondata)
+    f.close()
+    return 0
+
+
+def fecth_mfl_codes(request):
+    # fetch data from excel sheet saved as json
+    f = open(os.path.join(Path(__file__).resolve().parent.parent, "sdps_and_agencies.json"), 'r')
+    excel_facilities = json.load(f)
+
+    # fetch data from kmhfl api
+    headers = CaseInsensitiveDict()
+    headers["Accept"] = "application/json"
+    headers["Authorization"] = "Bearer Co5oG8q1RJMnjuXrqunEyPg6iV5s3M"
+    url = 'http://api.kmhfltest.health.go.ke/api/facilities/facilities/?format=json'
+    response = requests.get(url, headers=headers)
+
+    data = json.loads(response.content)
+    for i in range(0, len(data['results'])):
+        # loop through facilities in file and search page for it
+        for fac in excel_facilities:
+            # print(next(iter(fac.keys())))
+            if fac["Facilitycode"] == data['results'][i]['code']:
+                print("Found --->", data['results'][i]['code'], "-----> Page :", i)
+                fill_database(data['results'][i], next(iter(fac.values())))
+                MFL_codes.objects.get_or_create(code=data['results'][i]['code'],
+                                               current_page=data['current_page'],
+                                                   current_index=i,
+                                                partner=Partners.objects.get())
+
+    for i in range(2, 420):  # data['total_pages']
+        # print("Page on ", i)
+        next_url = 'http://api.kmhfltest.health.go.ke/api/facilities/facilities/?format=json&page=' + str(i)
+        next_page_response = requests.get(next_url, headers=headers)
+
+        next_page_data = json.loads(next_page_response.content)
+
+        for i in range(0, len(next_page_data['results'])):
+            # loop through facilities in file and search page for it
+            for fac in excel_facilities:
+                # print(next(iter(fac.keys())))
+                if int(next(iter(fac.keys()))) == next_page_data['results'][i]['code']:
+                    print("Found --->", next_page_data['results'][i]['code'], "-----> Page :", i)
+                    fill_database(next_page_data['results'][i], next(iter(fac.values())))
+    return 0
+
 def add_stewards(request):
     # file = os.path.join(Path(__file__).resolve().parent.parent, "facilities/kenyahmis_stewards.xlsx")
     # stewards_data = pd.read_excel(file)  # reading file
@@ -200,15 +263,22 @@ def combineexcelandapi(request):
 
 def addpartnersinexcel(request):
     file = os.path.join(Path(__file__).resolve().parent.parent, "facilities/HIS Implementation List .xlsx")
-    excel_facilities = pd.read_excel(file, sheet_name='Fridah')  # reading file
+    # make json sheet of excel file
+    excel_facilities = pd.read_excel(file, sheet_name='Facilities')
 
-    for i in range(0, 632):  # data['total_pages']:
+    for i in range(0, 13720):  # data['total_pages']:
         try:
-            Partners.objects.get_or_create(name=(excel_facilities['SDP'][i]).strip(),
-                                           agency=SDP_agencies.objects.get(
-                                               name=(excel_facilities['SDP Agency'][i]).strip()))
+            sdp = excel_facilities['Implementing_Mechanism_Name'][i] if str(excel_facilities['Implementing_Mechanism_Name'][i])\
+                != 'nan' else None
+            if sdp != None:
+                agency = (excel_facilities['Agency'][i]).strip() if str(excel_facilities['Agency'][i]) != 'nan' else None
+                if agency != None:
+                    SDP_agencies.objects.get_or_create(name=agency)
+                Partners.objects.get_or_create(name=sdp,
+                                               agency=SDP_agencies.objects.get(
+                                                   name=agency))
         except Exception as e:
-            print(excel_facilities['SDP'][i])
+            print(excel_facilities['Implementing_Mechanism_Name'][i])
             print(e)
 
     return 0
@@ -454,7 +524,7 @@ def index(request):
                                                                'loggedin_user': loggedin_user})
 
 
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def add_sub_counties(request):
     if request.method == 'POST':
         form = Sub_Counties_Form(request.POST)
@@ -475,10 +545,10 @@ def add_sub_counties(request):
     return render(request, 'facilities/add_sub_counties.html', {'form': form, "title": "Add sub_counties"})
 
 
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def add_facility_data(request):
-    # if 'logged_in_username' not in request.session:
-    #     return HttpResponseRedirect("/signup")
+    if 'logged_in_username' not in request.session:
+        return HttpResponseRedirect("/signup")
 
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -613,13 +683,14 @@ def add_facility_data(request):
         form.fields['hts_deployment'].choices = [("", "")] + [(i.id, i.deployment) for i in
                                                               HTS_deployment_type.objects.all()]
 
-    return render(request, 'facilities/update_facility.html', {'form': form, "title": "Add Facility"})
+    loggedin_user = request.session["logged_in_username"] if 'logged_in_username' in request.session else None
+    return render(request, 'facilities/update_facility.html', {'form': form, "title": "Add Facility", 'loggedin_user': loggedin_user})
 
 
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def update_facility_data(request, facility_id):
-    # if 'logged_in_username' not in request.session:
-    #     return HttpResponseRedirect("/signup")
+    if 'logged_in_username' not in request.session:
+        return HttpResponseRedirect("/signup")
 
     # does item exist in db
     facility = get_object_or_404(Facility_Info, pk=facility_id)
@@ -832,16 +903,18 @@ def update_facility_data(request, facility_id):
         facility_edits = Edited_Facility_Info.objects.get(facility_info=facility_id)
     except Edited_Facility_Info.DoesNotExist:
         facility_edits = None
+
+    loggedin_user = request.session["logged_in_username"] if 'logged_in_username' in request.session else None
     return render(request, 'facilities/update_facility.html',
                   {'facilitydata': facilitydata, 'facility_edits': facility_edits,
-                   'mhealth_info': mhealth_info, 'form': form, "title": "Facility data"})
+                   'mhealth_info': mhealth_info, 'form': form, "title": "Facility data", 'loggedin_user': loggedin_user})
 
 
 # from django.conf import settings
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def approve_facility_changes(request, facility_id):
-    # if 'logged_in_username' not in request.session:
-    #     return HttpResponseRedirect("/signup")
+    if 'logged_in_username' not in request.session:
+        return HttpResponseRedirect("/signup")
 
     # does item exist in db
     facility_edits = get_object_or_404(Edited_Facility_Info, pk=facility_id)
@@ -1019,8 +1092,10 @@ def approve_facility_changes(request, facility_id):
         form.fields['hts_use'].choices = [("", "")] + [(i.id, i.hts_use_name) for i in HTS_use_type.objects.all()]
         form.fields['hts_deployment'].choices = [("", "")] + [(i.id, i.deployment) for i in
                                                               HTS_deployment_type.objects.all()]
+
+    loggedin_user = request.session["logged_in_username"] if 'logged_in_username' in request.session else None
     return render(request, 'facilities/update_facility.html',
-                  {'facilitydata': edited_facilitydata, 'form': form, "title": "Changes Awaiting Approval"})
+                  {'facilitydata': edited_facilitydata, 'form': form, "title": "Changes Awaiting Approval", 'loggedin_user': loggedin_user})
 
 
 def delete_facility(request, facility_id):
@@ -1040,8 +1115,11 @@ def delete_facility(request, facility_id):
     return HttpResponseRedirect('/home')
 
 
-@login_required(login_url='/login/')
+# @login_required(login_url='/login/')
 def partners(request):
+    if 'logged_in_username' not in request.session:
+        return HttpResponseRedirect("/signup")
+
     partners_data = Partners.objects.prefetch_related('agency').all()
 
     if request.method == 'POST':
@@ -1054,7 +1132,8 @@ def partners(request):
             print(e)
             messages.add_message(request, messages.ERROR, 'An error occured. Please try again!')
 
-    return render(request, 'facilities/partners_list.html', {'partners_data': partners_data})
+    loggedin_user = request.session["logged_in_username"] if 'logged_in_username' in request.session else None
+    return render(request, 'facilities/partners_list.html', {'partners_data': partners_data, 'loggedin_user': loggedin_user})
 
 
 def sub_counties(request):

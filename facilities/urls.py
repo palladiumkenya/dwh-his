@@ -23,4 +23,6 @@ path(r'searchmflcodeinapi', views.searchmflcodeinapi, name='searchmflcodeinapi')
 path(r'addsubcountiesinapi', views.addsubcountiesinapi, name='addsubcountiesinapi'),
 path(r'addpartnersinexcel', views.addpartnersinexcel, name='addpartnersinexcel'),
 path(r'addownersinapi', views.addownersinapi, name='addownersinapi'),
+path(r'fetch_sdp_and_agencies', views.fetch_sdp_and_agencies, name='fetch_sdp_and_agencies'),
+path(r'fecth_mfl_codes', views.fecth_mfl_codes, name='fecth_mfl_codes'),
 ]

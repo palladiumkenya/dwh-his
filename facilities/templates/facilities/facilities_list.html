@@ -44,10 +44,10 @@
                 <td>{{data.emr_status}}</td>
 
                 <td><a href="/facilities/update_facility/{{data.id}}" class="mr-2"><i class="fa-solid fa-pen-to-square fa-2x text-success"></i></a>
-                    {% if user.is_authenticated %}
+                    {% if loggedin_user %}
                         <i class="fa-solid fa-trash-can fa-lg text-danger" onclick='confirm_delete("{{data.id}}")'></i>
                     {% else %}
-                        <a href="/login"><i class="fa-solid fa-trash-can fa-2x text-danger"></i></a>
+                        <a href="/signup"><i class="fa-solid fa-trash-can fa-2x text-danger"></i></a>
                     {% endif %}
                 </td>
             </tr>
