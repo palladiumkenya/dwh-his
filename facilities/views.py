@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, render
 import uuid
 import mysql.connector
 from django.contrib.auth.decorators import login_required
+# import xlsxwriter
 
 from django.core.mail import BadHeaderError, send_mail, EmailMessage
 from django.template.loader import render_to_string
@@ -144,22 +145,32 @@ def fecth_mfl_codes(request):
     # fetch data from kmhfl api
     headers = CaseInsensitiveDict()
     headers["Accept"] = "application/json"
-    headers["Authorization"] = "Bearer Co5oG8q1RJMnjuXrqunEyPg6iV5s3M"
+    headers["Authorization"] = "Bearer ruIuuCIRT5VLvY2cwuvICe6uoNKJ2q"
     url = 'http://api.kmhfltest.health.go.ke/api/facilities/facilities/?format=json'
     response = requests.get(url, headers=headers)
 
     data = json.loads(response.content)
-    for i in range(0, len(data['results'])):
-        # loop through facilities in file and search page for it
-        for fac in excel_facilities:
-            # print(next(iter(fac.keys())))
-            if fac["Facilitycode"] == data['results'][i]['code']:
-                print("Found --->", data['results'][i]['code'], "-----> Page :", i)
-                fill_database(data['results'][i], next(iter(fac.values())))
-                MFL_codes.objects.get_or_create(code=data['results'][i]['code'],
-                                               current_page=data['current_page'],
-                                                   current_index=i,
-                                                partner=Partners.objects.get())
+
+    # for i in range(0, len(data['results'])):
+    #     # loop through facilities in file and search page for it
+    #     for fac in excel_facilities:
+    #         # print(next(iter(fac.keys())))
+    #         if fac["Facilitycode"] == data['results'][i]['code']:
+    #             print("Found page 1--->", data['results'][i]['code'], "-----> index :", i)
+    #             SDP = Partners.objects.get(name=fac["SDP"]) if fac["SDP"] != "" else None
+    #             lat_long = data['results'][i]["lat_long"] if data['results'][i]["lat_long"] else [None, None]
+    #
+    #             Master_Facility_List.objects.get_or_create(current_page=data['current_page'],
+    #                                                current_index=i,
+    #                                        mfl_code= data['results'][i]['code'],
+    #                                             name=data['results'][i]['name'],
+    #                                  county=Counties.objects.get(name=data['results'][i]['county_name']),
+    #                                  sub_county=Sub_counties.objects.get(
+    #                                      name=data['results'][i]['sub_county_name']),
+    #                                  owner=Owner.objects.get(name=data['results'][i]['owner_type_name']),
+    #                                  partner=SDP,
+    #                                  lat=lat_long[0],
+    #                                  lon=lat_long[1])
 
     for i in range(2, 420):  # data['total_pages']
         # print("Page on ", i)
@@ -172,9 +183,34 @@ def fecth_mfl_codes(request):
             # loop through facilities in file and search page for it
             for fac in excel_facilities:
                 # print(next(iter(fac.keys())))
-                if int(next(iter(fac.keys()))) == next_page_data['results'][i]['code']:
-                    print("Found --->", next_page_data['results'][i]['code'], "-----> Page :", i)
-                    fill_database(next_page_data['results'][i], next(iter(fac.values())))
+                if fac['Facilitycode'] == next_page_data['results'][i]['code']:
+                    # print("Found --->", next_page_data['results'][i]['code'], "-----> Page :", i)
+
+                    try:
+                        #add any missing sub counties
+                        Sub_counties.objects.get_or_create(name=next_page_data['results'][i]['sub_county_name'],
+                                                           county=Counties.objects.get(name=next_page_data['results'][i]['county_name']))
+
+                        SDP = Partners.objects.get(name=fac["SDP"]) if fac["SDP"] != "" else None
+                        lat_long = next_page_data['results'][i]["lat_long"] if next_page_data['results'][i]["lat_long"] else [None, None]
+                        sub_county = Sub_counties.objects.get(name=next_page_data['results'][i]['sub_county_name']) \
+                                    if next_page_data['results'][i]['sub_county_name'] else None
+                        county = Counties.objects.get(name=next_page_data['results'][i]['county_name'])  \
+                                    if next_page_data['results'][i]['county_name'] else None
+
+                        Master_Facility_List.objects.get_or_create(current_page=next_page_data['current_page'],
+                                                                       current_index=i,
+                                                               mfl_code= next_page_data['results'][i]['code'],
+                                                                    name=next_page_data['results'][i]['name'],
+                                                         county=county, sub_county=sub_county,
+                                                         owner=Owner.objects.get(name=next_page_data['results'][i]['owner_type_name']),
+                                                         partner=SDP,
+                                                         lat=lat_long[0],
+                                                         lon=lat_long[1]
+                        )
+                    except Exception as e:
+                        print('Exception ---------->', e, fac["SDP"], next_page_data['results'][i]['sub_county_name'], next_page_data['results'][i]['county_name'])
+
     return 0
 
 def add_stewards(request):
@@ -264,21 +300,18 @@ def combineexcelandapi(request):
 def addpartnersinexcel(request):
     file = os.path.join(Path(__file__).resolve().parent.parent, "facilities/HIS Implementation List .xlsx")
     # make json sheet of excel file
-    excel_facilities = pd.read_excel(file, sheet_name='Facilities')
+    excel_facilities = pd.read_excel(file, sheet_name='Master_HIS_List')
 
-    for i in range(0, 13720):  # data['total_pages']:
+    for i in range(0, 1732):  # data['total_pages']:
         try:
-            sdp = excel_facilities['Implementing_Mechanism_Name'][i] if str(excel_facilities['Implementing_Mechanism_Name'][i])\
-                != 'nan' else None
-            if sdp != None:
-                agency = (excel_facilities['Agency'][i]).strip() if str(excel_facilities['Agency'][i]) != 'nan' else None
-                if agency != None:
-                    SDP_agencies.objects.get_or_create(name=agency)
-                Partners.objects.get_or_create(name=sdp,
-                                               agency=SDP_agencies.objects.get(
-                                                   name=agency))
+            emr = excel_facilities['HTS Use'][i]
+            if emr != None or emr != "":
+                # agency = (excel_facilities['Agency'][i]).strip() if str(excel_facilities['Agency'][i]) != 'nan' else None
+                # if agency != None:
+                #     SDP_agencies.objects.get_or_create(name=agency)
+                HTS_use_type.objects.get_or_create(hts_use_name=emr.strip())
         except Exception as e:
-            print(excel_facilities['Implementing_Mechanism_Name'][i])
+            print('owners with problems ------------->', excel_facilities['County'][i])
             print(e)
 
     return 0
@@ -333,117 +366,102 @@ def addsubcountiesinapi(request):
 
 
 def searchmflcodeinapi(request):
-    # fetch data from excel sheet saved as json
-    f = open(os.path.join(Path(__file__).resolve().parent.parent, "facilites_from_excel.json"), 'r')
-    excel_facilities = json.load(f)
+    file = os.path.join(Path(__file__).resolve().parent.parent, "facilities/HIS Implementation List .xlsx")
+    # make json sheet of excel file
+    excel_facilities = pd.read_excel(file, sheet_name='Master_HIS_List')
 
-    # fetch data from kmhfl api
-    headers = CaseInsensitiveDict()
-    headers["Accept"] = "application/json"
-    headers["Authorization"] = "Bearer Co5oG8q1RJMnjuXrqunEyPg6iV5s3M"
-    url = 'http://api.kmhfltest.health.go.ke/api/facilities/facilities/?format=json'
-    response = requests.get(url, headers=headers)
+    for i in range(0, 30):  # data['total_pages']:
 
-    data = json.loads(response.content)
+        unique_facility_id = uuid.uuid4()
 
-    for i in range(2, 420):  # data['total_pages']
-        # print("Page on ", i)
-        next_url = 'http://api.kmhfltest.health.go.ke/api/facilities/facilities/?format=json&page=' + str(i)
-        next_page_response = requests.get(next_url, headers=headers)
+        Facility_Info(id=unique_facility_id, mfl_code=excel_facilities['MFL_Code'][i],
+                                     name=excel_facilities['Facility Name'][i],
+                                     county=Counties.objects.get(name=excel_facilities['County'][i]),
+                                     sub_county=Sub_counties.objects.get(
+                                         name=excel_facilities['SubCounty'][i]),
+                                     owner=Owner.objects.get(name=excel_facilities['Owner'][i]),
+                                     partner=Partners.objects.get(name=excel_facilities['SDP'][i]),
+                                     lat=excel_facilities['Latitude'][i],
+                                     lon=excel_facilities['Longitude'][i],
+                                     kmhfltest_id=None
+                                     ).save()
 
-        next_page_data = json.loads(next_page_response.content)
+        # save Implementation info
 
-        for i in range(0, len(next_page_data['results'])):
-            # loop through facilities in file and search page for it
-            for fac in excel_facilities:
-                # print(next(iter(fac.keys())))
-                if int(next(iter(fac.keys()))) == next_page_data['results'][i]['code']:
-                    print("Found --->", next_page_data['results'][i]['code'], "-----> Page :", i)
-                    fill_database(next_page_data['results'][i], next(iter(fac.values())))
-    return 0
+        CT = True if 'CT' in excel_facilities['Implementation'][i] else False
+        HTS = True if 'HTS' in excel_facilities['Implementation'][i] else False
+        IL = True if 'IL' in excel_facilities['Implementation'][i] else False
+        Implementation_type(ct=CT, hts=HTS, il=IL,
+                            for_version="original",
+                            facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
 
-
-def fill_database(kmhfl_facility, excel_facility):
-    print('=========================================================')
-    print(kmhfl_facility['code'], kmhfl_facility['name'], kmhfl_facility['county_name'],
-          kmhfl_facility['sub_county_name'],
-          kmhfl_facility['owner_type_name'], kmhfl_facility["lat_long"])
-    print('/////////////////////////////////////////////////////')
-    # CT, HTS, IL = excel_facility['implementation'].split(' & ')
-    print('=========================================================')
-
-    lat_long = kmhfl_facility["lat_long"] if kmhfl_facility["lat_long"] else [None, None]
-    unique_facility_id = uuid.uuid4()
-
-    Facility_Info.objects.create(id=unique_facility_id, mfl_code=kmhfl_facility['code'],
-                                 name=kmhfl_facility['name'],
-                                 county=Counties.objects.get(name=kmhfl_facility['county_name']),
-                                 sub_county=Sub_counties.objects.get(
-                                     name=kmhfl_facility['sub_county_name']),
-                                 owner=Owner.objects.get(name=kmhfl_facility['owner_type_name']),
-                                 partner=Partners.objects.get(name=excel_facility['partner']),
-                                 lat=lat_long[0],
-                                 lon=lat_long[1],
-                                 kmhfltest_id=kmhfl_facility["id"]
-                                 ).save()
-
-    # save Implementation info
-    CT = True if 'CT' in excel_facility['implementation'] else False
-    HTS = True if 'HTS' in excel_facility['implementation'] else False
-    IL = True if 'IL' in excel_facility['implementation'] else False
-    Implementation_type(ct=CT, hts=HTS, il=IL,
-                        for_version="original",
-                        facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
-
-    # save HTS info
-    if HTS:
-        HTS_Info(hts_use_name=HTS_use_type.objects.get(hts_use_name=excel_facility['hts_use']),
-                 status=excel_facility['hts_status'],
-                 deployment=HTS_deployment_type.objects.get(deployment=excel_facility['hts_deployment']),
-                 for_version="original",
-                 facility_info=Facility_Info.objects.get(pk=unique_facility_id),
-                 facility_edits=None).save()
-    else:
         # save HTS info
-        HTS_Info(hts_use_name=None, status=None, deployment=None,
-                 for_version="original",
-                 facility_info=Facility_Info.objects.get(pk=unique_facility_id),
-                 facility_edits=None).save()
+        if HTS:
+            if excel_facilities['HTS Deployment'][i] != 'Desktop':
+                deployment = HTS_deployment_type.objects.get(deployment="Desktop Only")
+            elif  excel_facilities['HTS Deployment'][i] != 'Mobile & Desktop':
+                deployment = HTS_deployment_type.objects.get(deployment="Hybrid")
+            else:
+                deployment = HTS_deployment_type.objects.get(deployment=excel_facilities['HTS Deployment'][i])
 
-    # save EMR info
-    if CT:
-        EMR_Info(type=EMR_type.objects.get(type=excel_facility['emr']), status=excel_facility['emr_status'],
-                 ovc=change_value(excel_facility['OVC']), otz=change_value(excel_facility['OTZ']),
-                 prep=change_value(excel_facility['PrEP']),
-                 tb=change_value(excel_facility['TB']), kp=change_value(excel_facility['KP']),
-                 mnch=change_value(excel_facility['MCH']),
-                 lab_manifest=change_value(excel_facility['Lab Manifest']),
-                 for_version="original", facility_edits=None,
-                 facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
-    else:
-        EMR_Info(type=None, status=None, ovc=None, otz=None, prep=None,
-                 tb=None, kp=None, mnch=None, lab_manifest=None,
-                 for_version="original", facility_edits=None,
-                 facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
 
-    # save IL info
-    if IL:
-        IL_Info(webADT_registration=change_value(excel_facility['webADT_registration']),
-                webADT_pharmacy=change_value(excel_facility['webADT_pharmacy']),
-                status=excel_facility['il_status'], three_PM=change_value(excel_facility['3PM']),
-                for_version="original", facility_edits=None,
-                facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
-    else:
-        IL_Info(webADT_registration=None, webADT_pharmacy=None, status=None, three_PM=None,
-                for_version="original", facility_edits=None,
-                facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+            try:
+                use = HTS_use_type.objects.get(hts_use_name=excel_facilities['HTS Use'][i])
+            except HTS_use_type.DoesNotExist:
+                use = None
+            HTS_Info(hts_use_name=use,
+                     status=excel_facilities['HTS Status'][i],
+                     deployment=deployment,
+                     for_version="original",
+                     facility_info=Facility_Info.objects.get(pk=unique_facility_id),
+                     facility_edits=None).save()
+        else:
+            # save HTS info
+            HTS_Info(hts_use_name=None, status=None, deployment=None,
+                     for_version="original",
+                     facility_info=Facility_Info.objects.get(pk=unique_facility_id),
+                     facility_edits=None).save()
 
-    # save MHealth info
-    MHealth_Info(Ushauri=change_value(excel_facility['Ushauri']), C4C=None,
-                 Nishauri=change_value(excel_facility['Nishauri']), ART_Directory=None,
-                 Psurvey=None, Mlab=change_value(excel_facility['mlab']),
-                 for_version="original", facility_edits=None,
-                 facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+        # save EMR info
+        if CT:
+            try:
+                emr = EMR_type.objects.get(type=excel_facilities['EMR'][i])
+            except EMR_type.DoesNotExist:
+                emr = None
+
+            EMR_Info(type=emr, status=excel_facilities['EMR Status'][i],
+                     ovc=change_value(excel_facilities['OVC'][i]), otz=change_value(excel_facilities['OTZ'][i]),
+                     prep=change_value(excel_facilities['PrEP'][i]),
+                     tb=change_value(excel_facilities['TB'][i]), kp=change_value(excel_facilities['KP'][i]),
+                     mnch=change_value(excel_facilities['MCH'][i]),
+                     lab_manifest=change_value(excel_facilities['Lab Manifest'][i]),
+                     for_version="original", facility_edits=None,
+                     facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+        else:
+            EMR_Info(type=None, status=None, ovc=None, otz=None, prep=None,
+                     tb=None, kp=None, mnch=None, lab_manifest=None,
+                     for_version="original", facility_edits=None,
+                     facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+
+        # save IL info
+        if IL:
+            IL_Info(webADT_registration=change_value(excel_facilities['Registration IE'][i]),
+                    webADT_pharmacy=change_value(excel_facilities['Phamarmacy IE'][i]),
+                    status=excel_facilities['IL Status'][i], three_PM=change_value(excel_facilities['3PM'][i]),
+                    for_version="original", facility_edits=None,
+                    facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+        else:
+            IL_Info(webADT_registration=None, webADT_pharmacy=None, status=None, three_PM=None,
+                    for_version="original", facility_edits=None,
+                    facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+
+        # save MHealth info
+        MHealth_Info(Ushauri=change_value(excel_facilities['Ushauri'][i]), C4C=None,
+                     Nishauri=change_value(excel_facilities['Nishauri'][i]), ART_Directory=None,
+                     Psurvey=None, Mlab=change_value(excel_facilities['mlab'][i]),
+                     for_version="original", facility_edits=None,
+                     facility_info=Facility_Info.objects.get(pk=unique_facility_id)).save()
+
 
     return 0
 
@@ -456,19 +474,30 @@ def change_value(value):
     else:
         return None
 
+def ignore_unkowns(item):
+    list_of_unkowns = ['', 'NULL', 'N/A', 'No EMR', 'No HTS Use', 'Yes']
+    if item in list_of_unkowns:
+        emr = None
+        list_of_unkowns.append(item)
+        emr = item
+    else:
+        emr = item
+    return emr
+
+
 
 def index(request):
     if 'logged_in_user_org' in request.session:
-        organization = Organizations.objects.get(organization_id=request.session["logged_in_user_org"])
+        organization = Organizations.objects.select_related('org_access_right').get(organization_id=request.session["logged_in_user_org"])
         print('logged_in_user_org ---------->', organization.access_right)
-        if organization.access_right == "show all":
+        if organization.org_access_right:
+            facilities_info = Facility_Info.objects.select_related('partner') \
+                .select_related('county') \
+                .select_related('sub_county').filter(partner__id=organization.org_access_right.id)
+        else:
             facilities_info = Facility_Info.objects.prefetch_related('partner') \
                 .select_related('county') \
                 .select_related('sub_county').all()
-        else:
-            facilities_info = Facility_Info.objects.select_related('partner') \
-                .select_related('county') \
-                .select_related('sub_county').filter(partner__name=organization.access_right)
     else:
         facilities_info = Facility_Info.objects.prefetch_related('partner') \
             .select_related('county') \
@@ -684,7 +713,71 @@ def add_facility_data(request):
                                                               HTS_deployment_type.objects.all()]
 
     loggedin_user = request.session["logged_in_username"] if 'logged_in_username' in request.session else None
-    return render(request, 'facilities/update_facility.html', {'form': form, "title": "Add Facility", 'loggedin_user': loggedin_user})
+    return render(request, 'facilities/update_facility.html', {'form': form, "title": "Add Facility",
+                                                               "sub_title": "Add new Facility to your List",
+                                                               'loggedin_user': loggedin_user})
+
+
+# @login_required(login_url='/login/')
+def view_facility_data(request, facility_id):
+    if 'logged_in_username' not in request.session:
+        return HttpResponseRedirect("/signup")
+
+    facility = get_object_or_404(Facility_Info, pk=facility_id)
+
+    facilitydata = Facility_Info.objects.prefetch_related('partner') \
+        .select_related('owner').select_related('county') \
+        .select_related('sub_county').get(pk=facility_id)
+
+    implementation_info = Implementation_type.objects.get(facility_info=facility_id)
+    emr_info = EMR_Info.objects.select_related('type').get(facility_info=facility_id)
+    hts_info = HTS_Info.objects.get(facility_info=facility_id)
+    il_info = IL_Info.objects.get(facility_info=facility_id)
+    mhealth_info = MHealth_Info.objects.get(facility_info=facility_id)
+
+    initial_data = {  # 1st Method
+        'mfl_code': facilitydata.mfl_code,
+        'name': facilitydata.name,
+        'county': facilitydata.county.name,
+        'sub_county': facilitydata.sub_county.name,
+        'owner': facilitydata.owner.name if facilitydata.owner else "",
+        'partner': facilitydata.partner.name if facilitydata.partner else "None",
+        'agency': facilitydata.partner.agency.name if facilitydata.partner and facilitydata.partner.agency else "None",
+        'lat': facilitydata.lat,
+        'lon': facilitydata.lon,
+        'CT': implementation_info.ct,
+        'HTS': implementation_info.hts,
+        'IL':  implementation_info.il,
+        'ovc_offered': emr_info.ovc,
+        'otz_offered': emr_info.otz,
+        'tb_offered': emr_info.tb,
+        'prep_offered': emr_info.prep,
+        'mnch_offered': emr_info.mnch,
+        'kp_offered': emr_info.kp,
+        'lab_man_offered': emr_info.lab_manifest,
+        'mhealth_ushauri': mhealth_info.Ushauri,
+        'mhealth_nishauri': mhealth_info.Nishauri,
+        'mhealth_c4c': mhealth_info.C4C,
+        'mhealth_mlab': mhealth_info.Mlab,
+        'mhealth_psurvey': mhealth_info.Psurvey,
+        'mhealth_art': mhealth_info.ART_Directory,
+        'il_status': il_info.status,
+        'webADT_registration': il_info.webADT_registration,
+        'webADT_pharmacy': il_info.webADT_pharmacy,
+        'il_three_PM': il_info.three_PM,
+        'il_air': il_info.air,
+        'il_ushauri': il_info.Ushauri,
+        'il_mlab': il_info.Mlab,
+        'emr_type': emr_info.type.type if emr_info.type else "",
+        'emr_status': emr_info.status,
+        'hts_use': hts_info.hts_use_name.hts_use_name if hts_info.hts_use_name else "",
+        'hts_deployment': hts_info.deployment.deployment if hts_info.deployment else "",
+        'hts_status': hts_info.status,
+    }
+    loggedin_user = request.session["logged_in_username"] if 'logged_in_username' in request.session else None
+    return render(request, 'facilities/view_facility.html',
+                  {'facilitydata': facilitydata,  "title": "Facility", "initial_data":initial_data,
+                   "sub_title": "View facility details", 'loggedin_user': loggedin_user})
 
 
 # @login_required(login_url='/login/')
@@ -907,7 +1000,8 @@ def update_facility_data(request, facility_id):
     loggedin_user = request.session["logged_in_username"] if 'logged_in_username' in request.session else None
     return render(request, 'facilities/update_facility.html',
                   {'facilitydata': facilitydata, 'facility_edits': facility_edits,
-                   'mhealth_info': mhealth_info, 'form': form, "title": "Facility data", 'loggedin_user': loggedin_user})
+                   'mhealth_info': mhealth_info, 'form': form, "title": "Update Facility data",
+                   "sub_title": "Make changes to a Facility", 'loggedin_user': loggedin_user})
 
 
 # from django.conf import settings
@@ -928,7 +1022,13 @@ def approve_facility_changes(request, facility_id):
     hts_info = HTS_Info.objects.get(facility_edits=facility_id)
     il_info = IL_Info.objects.get(facility_edits=facility_id)
     mhealth_info = MHealth_Info.objects.get(facility_edits=facility_id)
-    print('well well lookie here ', il_info.webADT_pharmacy, il_info.webADT_registration)
+
+    initial_facility_data = Facility_Info.objects.prefetch_related('partner') \
+        .select_related('owner').select_related('county') \
+        .select_related('sub_county').get(pk=edited_facilitydata.facility_info.id)
+
+    # compare changes
+    compare_edits = compare_changes_made(initial_facility_data, edited_facilitydata)
 
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
@@ -1051,11 +1151,8 @@ def approve_facility_changes(request, facility_id):
             'owner': edited_facilitydata.owner.id,
             'partner': edited_facilitydata.partner.id if edited_facilitydata.partner else "",
             'agency': edited_facilitydata.partner.agency.name if edited_facilitydata.partner and edited_facilitydata.partner.agency else "",
-            'lat': edited_facilitydata.lat,
-            'lon': edited_facilitydata.lon,
-            'CT': implementation_info.ct,
-            'HTS': implementation_info.hts,
-            'IL': implementation_info.il,
+            'lat': edited_facilitydata.lat,'lon': edited_facilitydata.lon,
+            'CT': implementation_info.ct, 'HTS': implementation_info.hts, 'IL': implementation_info.il,
             'ovc_offered': emr_info.ovc,
             'otz_offered': emr_info.otz,
             'tb_offered': emr_info.tb,
@@ -1095,13 +1192,73 @@ def approve_facility_changes(request, facility_id):
 
     loggedin_user = request.session["logged_in_username"] if 'logged_in_username' in request.session else None
     return render(request, 'facilities/update_facility.html',
-                  {'facilitydata': edited_facilitydata, 'form': form, "title": "Changes Awaiting Approval", 'loggedin_user': loggedin_user})
+                  {'facilitydata': edited_facilitydata, 'form': form, "title": "Changes Awaiting Approval",
+                   "sub_title": "Approve or reject the changes made to the facility", 'loggedin_user': loggedin_user,
+                   "compare_edits":compare_edits})
+
+
+def compare_changes_made(initial_facility_data, edited_facilitydata):
+    implementation_info = Implementation_type.objects.get(facility_edits=edited_facilitydata.id)
+    emr_info = EMR_Info.objects.select_related('type').get(facility_edits=edited_facilitydata.id)
+    hts_info = HTS_Info.objects.get(facility_edits=edited_facilitydata.id)
+    il_info = IL_Info.objects.get(facility_edits=edited_facilitydata.id)
+    mhealth_info = MHealth_Info.objects.get(facility_edits=edited_facilitydata.id)
+
+    initial_implementation_info = Implementation_type.objects.get(facility_info=initial_facility_data.id)
+    initial_emr_info = EMR_Info.objects.select_related('type').get(facility_info=initial_facility_data.id)
+    initial_hts_info = HTS_Info.objects.get(facility_info=initial_facility_data.id)
+    initial_il_info = IL_Info.objects.get(facility_info=initial_facility_data.id)
+    initial_mhealth_info = MHealth_Info.objects.get(facility_info=initial_facility_data.id)
+
+    compare_changes = {  # 1st Method
+        'mfl_code': "edited" if edited_facilitydata.mfl_code != initial_facility_data.mfl_code else "no changes",
+        'name': "edited" if edited_facilitydata.name != initial_facility_data.name else "no changes",
+        'county': "edited" if edited_facilitydata.county.id != initial_facility_data.county.id else "no changes",
+        'sub_county': "edited" if edited_facilitydata.sub_county.id != initial_facility_data.sub_county.id else "no changes",
+        'owner': "edited" if edited_facilitydata.owner.id != initial_facility_data.owner.id else "no changes",
+        'partner': "edited" if edited_facilitydata.partner.id  != initial_facility_data.partner.id  else "no changes",
+        'agency': "edited" if edited_facilitydata.partner.agency.name  != initial_facility_data.partner.agency.name else "no changes",
+        'lat': "edited" if edited_facilitydata.lat != initial_facility_data.lat else "no changes",
+        'lon':"edited" if  edited_facilitydata.lon != initial_facility_data.lon else "no changes",
+        'CT': "edited" if implementation_info.ct != initial_implementation_info.ct else "no changes",
+        'HTS': "edited" if implementation_info.hts != initial_implementation_info.hts else "no changes",
+        'IL': "edited" if implementation_info.il != initial_implementation_info.il else "no changes",
+        'ovc_offered': "edited" if emr_info.ovc != initial_emr_info.ovc else "no changes",
+        'otz_offered': "edited" if emr_info.otz != initial_emr_info.otz else "no changes",
+        'tb_offered': "edited" if emr_info.tb != initial_emr_info.tb else "no changes",
+        'prep_offered':"edited" if emr_info.prep != initial_emr_info.prep else "no changes",
+        'mnch_offered': "edited" if emr_info.mnch != initial_emr_info.mnch else "no changes",
+        'kp_offered': "edited" if emr_info.kp != initial_emr_info.kp else "no changes",
+        # 'lab_man_offered': emr_info.lab_manifest,
+        # 'mhealth_ushauri': mhealth_info.Ushauri,
+        # 'mhealth_nishauri': mhealth_info.Nishauri,
+        # 'mhealth_c4c': mhealth_info.C4C,
+        # 'mhealth_mlab': mhealth_info.Mlab,
+        # 'mhealth_psurvey': mhealth_info.Psurvey,
+        # 'mhealth_art': mhealth_info.ART_Directory,
+        # 'il_status': il_info.status,
+        # 'webADT_registration': il_info.webADT_registration,
+        # 'webADT_pharmacy': il_info.webADT_pharmacy,
+        # 'il_three_PM': il_info.three_PM,
+        # 'il_air': il_info.air,
+        # 'il_ushauri': il_info.Ushauri,
+        # 'il_mlab': il_info.Mlab,
+        # 'emr_type': emr_info.type.id if emr_info.type else "",
+        # 'emr_status': emr_info.status,
+        # 'hts_use': hts_info.hts_use_name.id if hts_info.hts_use_name else "",
+        # 'hts_deployment': hts_info.deployment.id if hts_info.deployment else "",
+        # 'hts_status': hts_info.status,
+    }
+    return compare_changes
 
 
 def delete_facility(request, facility_id):
 
     # get rid of the edits
-    Edited_Facility_Info.objects.get(facility_info=facility_id).delete()
+    try:
+        Edited_Facility_Info.objects.get(facility_info=facility_id).delete()
+    except Edited_Facility_Info.DoesNotExist:
+        print('Edited facility doesnt exist')
 
     # # get rid of the facility
     # Implementation_type.objects.get(facility_info=facility_id).delete() if Implementation_type.objects.get(facility_info=facility_id) else ""
@@ -1111,7 +1268,7 @@ def delete_facility(request, facility_id):
     # MHealth_Info.objects.get(facility_info=facility_id).delete() if MHealth_Info.objects.get(facility_info=facility_id) else ""
     Facility_Info.objects.get(pk=facility_id).delete()
 
-    messages.add_message(request, messages.SUCCESS, "Facility successfully deleted!")
+    # messages.add_message(request, messages.SUCCESS, "Facility successfully deleted!")
     return HttpResponseRedirect('/home')
 
 
@@ -1182,3 +1339,150 @@ def get_agencies_list(request):
 
     return JsonResponse(agencies_list, safe=False)
 
+
+@csrf_exempt
+def get_mfl_data(request):
+    facilityObj = {}
+
+    if request.method == 'POST':
+        try:
+
+            try:
+                Facility_Info.objects.get(mfl_code=int(request.POST.get('code')))
+                facilityObj = {"status": 'data exists'}
+            except Facility_Info.DoesNotExist:
+                mfl_data = Master_Facility_List.objects.select_related('county').select_related('sub_county')\
+                    .select_related('partner').select_related('owner').get(mfl_code=int(request.POST.get('code')))
+
+                print('code posted from form, ', request.POST.get('code'))
+
+                facilityObj['mfl_code'] = mfl_data.mfl_code
+                facilityObj['name'] = mfl_data.name
+                facilityObj['county'] = mfl_data.county.id
+                facilityObj['sub_county'] = mfl_data.sub_county.id
+                facilityObj['lat'] = float(mfl_data.lat) if mfl_data.lat else ""
+                facilityObj['lon'] = float(mfl_data.lon) if mfl_data.lon else ""
+                facilityObj['partner'] = mfl_data.partner.id if mfl_data.partner else ""
+                facilityObj['owner'] = mfl_data.owner.id
+                facilityObj['agency'] = mfl_data.partner.agency.name if mfl_data.partner else ""
+        except Edited_Facility_Info.DoesNotExist:
+            print(request.POST.get('code'), ' doesn\'t exist')
+
+    return JsonResponse(facilityObj, safe=False)
+
+
+from django.http import FileResponse
+from openpyxl.chart import BarChart,Reference
+def convert_to_excel(request):
+    facilities_info = Facility_Info.objects.prefetch_related('partner') \
+        .select_related('county') \
+        .select_related('sub_county').all()
+
+    facilitiesdata = []
+
+    for row in facilities_info:
+        implementation_info = Implementation_type.objects.get(facility_info=row.id)
+        emr_info = EMR_Info.objects.get(facility_info=row.id)
+        hts_info = HTS_Info.objects.get(facility_info=row.id)
+        il_info = IL_Info.objects.get(facility_info=row.id)
+        mhealth_info = MHealth_Info.objects.get(facility_info=row.id)
+
+        ct = "CT" if implementation_info.ct else ""
+        hts = "HTS" if implementation_info.hts else ""
+        il = "IL" if implementation_info.il else ""
+
+        implementation = [ct, hts, il]
+
+        dataObj = {}
+        dataObj["id"] = row.id
+        dataObj["mfl_code"] = row.mfl_code
+        dataObj["name"] = row.name
+        dataObj["county"] = row.county.name
+        dataObj["sub_county"] = row.sub_county.name
+        dataObj["owner"] = row.owner.name if row.owner else ""
+        dataObj["lat"] = row.lat if row.lat else ""
+        dataObj["lon"] = row.lon if row.lon else ""
+        dataObj["partner"] = row.partner.name if row.partner else ""
+        dataObj["agency"] = row.partner.agency.name if row.partner and row.partner.agency else ""
+        dataObj["implementation"] = implementation
+        dataObj["emr_type"] = emr_info.type.type if emr_info.type else ""
+        dataObj["emr_status"] = emr_info.status if emr_info.status else ""
+        dataObj["hts_use"] = hts_info.hts_use_name.hts_use_name if hts_info.hts_use_name else ""
+        dataObj["hts_deployment"] = hts_info.deployment.deployment if hts_info.deployment else ""
+        dataObj["hts_status"] = hts_info.status
+        dataObj["il_status"] = il_info.status
+        dataObj["il_registration_ie"] = il_info.webADT_registration
+        dataObj["il_pharmacy_ie"] = il_info.webADT_pharmacy
+        dataObj["mhealth_ovc"] = mhealth_info.Nishauri
+
+        facilitiesdata.append(dataObj)
+
+    # workbook = xlsxwriter.Workbook('HIS Master List.xlsx')
+    #
+    # # By default worksheet names in the spreadsheet will be
+    # # Sheet1, Sheet2 etc., but we can also specify a name.
+    # worksheet = workbook.add_worksheet("HIF List")
+    #
+    # #add your titles
+    # worksheet.write(0, 0, "mfl_code")
+    # worksheet.write(0, 1, "name")
+    # worksheet.write(0, 3, "county")
+    # worksheet.write(0, 4, "sub_county")
+    # worksheet.write(0, 5, "owner")
+    # worksheet.write(0, 6, "lat")
+    # worksheet.write(0, 7, "lon")
+    #
+    # # Start from the first cell. Rows
+    # row = 1
+    #
+    # # Iterate over the data and write it out row by row.
+    # for data in (facilitiesdata):
+    #     worksheet.write(row, 0, data["mfl_code"])
+    #     worksheet.write(row, 1, data["name"])
+    #     worksheet.write(row, 3, data["county"])
+    #     worksheet.write(row, 4, data["sub_county"])
+    #     worksheet.write(row, 5, data["owner"])
+    #     worksheet.write(row, 6, data["lat"])
+    #     worksheet.write(row, 7, data["lon"])
+    #     row += 1
+    #
+    # # data = (['me', 21], ['steven', 32], ['carl', 6])
+    # data = [1,2,5,3,6,8,12]
+    # # create data for plotting
+    # values = Reference(data, min_col=1, min_row=1,
+    #                    max_col=1, max_row=10)
+    #
+    # # Create object of BarChart class
+    # chart = BarChart()
+    #
+    # # adding data to the Bar chart object
+    # chart.add_data(values)
+    #
+    # # set the title of the chart
+    # chart.title = " BAR-CHART "
+    #
+    # # set the title of the x-axis
+    # chart.x_axis.title = " X_AXIS "
+    #
+    # # set the title of the y-axis
+    # chart.y_axis.title = " Y_AXIS "
+    #
+    # # add chart to the sheet
+    # # the top-left corner of a chart
+    # # is anchored to cell E2 .
+    # worksheet.add_chart(chart, "J2")
+    #
+    # workbook.close()
+    #
+    # file = open('HIS Master List.xlsx', 'rb')
+    # response = FileResponse(file)
+    return facilitiesdata
+
+
+
+from django.db.models import Count
+
+def charts(request):
+    result = EMR_Info.objects.annotate(count=Count('author'))
+
+    return result

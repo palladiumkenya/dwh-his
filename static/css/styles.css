@@ -20,11 +20,68 @@
     background-color:#1ab394 !important;
 }
 
-p, li, a, td, th, label, b, input, select {
+p, td, th, label, b, input, select {
   font-size: 0.7em !important; /* 40px/16=2.5em */
+}
+
+ a {
+  font-size: 0.6em !important; /* 40px/16=2.5em */
 }
 
 input[type="checkbox"]
 {
     margin-top: 8px !important;
+}
+
+#search_icon:hover{
+    color:#1ab394 !important;
+}
+#search_icon{
+    margin-top: 32px !important;
+}
+legend{
+    font-size:35px !important;
+}
+
+#facility_form{
+    width:80% !important;
+    background: transparent !important;
+    border: 0px !important;
+}
+
+#facilities_list_filter label {
+    width:250px !important;
+}
+
+.navbar-styling {
+    flex-basis: 100%;
+    flex-grow: 1;
+    align-items: center;
+}
+
+.glowing-border {
+    border-color: #9ecaed;
+    box-shadow: 0 0 10px #9ecaed;
+}
+td{
+    background:white;
+    border-bottom: 1px solid black !important;
+}
+
+#facilities_list_filter label input {
+    display: block;
+    width: 100%;
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: .25rem;
+    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }

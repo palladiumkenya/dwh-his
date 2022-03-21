@@ -30,8 +30,13 @@
         "session_state": spliturl[6].split("=")[1]
     }
     base_url= window.location.origin;
-    $.post( base_url+"/store_tokens", params );
-    $(location).attr("href", base_url+"/log_user_in");
+    $.post( base_url+"/store_tokens", params )
+              .done(function() {
+                $(location).attr("href", base_url+"/log_user_in");
+              })
+
+
+
 </script>
 
 

@@ -29,6 +29,7 @@ unixodbc-dev
 ADD requirements.txt /project
 RUN pip install -r requirements.txt
 RUN pip install mysqlclient
+RUN pip install XlsxWriter
 
 ADD entrypoint.sh /project
 RUN chmod +x *.sh

@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 import urllib.parse
+import environ
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -39,18 +40,22 @@ def register(request):
 
 
 def signup(request):
-    authority= "https://auth.kenyahmis.org/DwhIdentity"
-    client_id= "dwh.his-test"
-    redirect_uri= "http://197.248.44.226:7001/signin-oidc"
+    env = environ.Env()
+    # reading .env file
+    environ.Env.read_env()
+
+    authority= env("AUTHORITY")
+    client_id= "dwh.his"
+    redirect_uri= request.scheme + "://" + request.META['HTTP_HOST'] +"/signin-oidc"
     response_type= "id_token token"
     scope= "openid profile apiApp"
-    post_logout_redirect_uri= "http://localhost:8000"
+    post_logout_redirect_uri= request.scheme + "://" + request.META['HTTP_HOST']  #"http://localhost:8000"
     state= generate_nonce()
     nonce= generate_nonce()
 
     ReturnUrl = '?ReturnUrl=%2FDwhIdentity%2Fconnect%2Fauthorize%2Fcallback'
     client_id = '%3Fclient_id%3D'+client_id
-    url = 'https://auth.kenyahmis.org/DwhIdentity/Account/Login'+ReturnUrl+client_id
+    url = env("LOGIN_URL") + ReturnUrl +  client_id
 
     auth_token_url = url+'%26redirect_uri%3D'+redirect_uri+'%26response_type%3Did_token%2520token%26scope%3Dopenid%2520profile%2520apiApp%26' \
                                                        'state%3D'+state+'%26nonce%3D'+nonce
@@ -67,8 +72,8 @@ from django.views.decorators.csrf import csrf_exempt,csrf_protect
 @csrf_exempt
 def store_tokens(request):
     if request.method == 'POST':
-        print("log_user_in=========>", request.POST.get('scope'), " =================> ",request.POST.get('access_token'))
-        print("id_token=========>", request.POST.get('states'), " =================> ",request.POST.get('id_token'))
+        # print("log_user_in=========>", request.POST.get('scope'), " =================> ",request.POST.get('access_token'))
+        # print("id_token=========>", request.POST.get('states'), " =================> ",request.POST.get('id_token'))
         request.session["access_token"] = request.POST.get('access_token')
         request.session["id_token"] = request.POST.get('id_token')
         request.session["state"] = request.POST.get('states')
@@ -77,11 +82,14 @@ def store_tokens(request):
     return JsonResponse({'status': 'success'})
 
 def log_user_in(request):
+    env = environ.Env()
+    # reading .env file
+    environ.Env.read_env()
 
     headers = CaseInsensitiveDict()
     headers["Accept"] = "application/json"
     headers["Authorization"] = "Bearer " + request.session["access_token"]
-    url = 'https://auth.kenyahmis.org/DwhIdentity/connect/userinfo'
+    url = env("AUTHORITY") + '/connect/userinfo'
     response = requests.get(url, headers=headers, verify=False)
     print('response ====================>', response.status_code)
 
@@ -104,11 +112,13 @@ def generate_nonce(length=32):
 
 
 def logout_user(request):
-    # headers = CaseInsensitiveDict()
-    # headers["Accept"] = "application/json"
-    # headers["Authorization"] = "Bearer " + request.session["access_token"]
-    url = 'https://auth.kenyahmis.org/DwhIdentity/connect/endsession?id_token_hint='+request.session["id_token"]+ \
-                               '&post_logout_redirect_uri=http%3A%2F%2Flocalhost%3A8000'
+    env = environ.Env()
+    # reading .env file
+    environ.Env.read_env()
+
+    redirect_url = 'http://localhost:8000'
+    url = env("AUTHORITY") + '/connect/endsession?id_token_hint='+request.session["id_token"]+ \
+                               '&post_logout_redirect_uri=' + redirect_url
     response = requests.get(url, verify=False)
     print('response ====================>', response.status_code, response.content)
 

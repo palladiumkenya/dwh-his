@@ -5,8 +5,13 @@
 <section class="mx-4">
 
 
-    <a href="/facilities/add_facility" class="btn btn-outline-success pull-right">Add Facility</a>
-    <h4>Facilities Data</h4>
+    <a href="/facilities/add_facility" class="btn  green_bg_color text-white pull-right"  style="width:200px;">ADD NEW FACILITY</a>
+    <h4>Facilities List
+<!--        <a href="/facilities/convert_to_excel" class="btn btn-sm" data-toggle="tooltip" title="Download Facilities Excel">-->
+<!--            <i class="fa-solid fa-download green_text_color">            -->
+<!--            </i>-->
+<!--        </a>-->
+    </h4>
 
     <table id="facilities_list" class="display">
         <thead>
@@ -43,12 +48,15 @@
                 <td>{{data.emr_type}}</td>
                 <td>{{data.emr_status}}</td>
 
-                <td><a href="/facilities/update_facility/{{data.id}}" class="mr-2"><i class="fa-solid fa-pen-to-square fa-2x text-success"></i></a>
-                    {% if loggedin_user %}
-                        <i class="fa-solid fa-trash-can fa-lg text-danger" onclick='confirm_delete("{{data.id}}")'></i>
-                    {% else %}
-                        <a href="/signup"><i class="fa-solid fa-trash-can fa-2x text-danger"></i></a>
-                    {% endif %}
+                <td>
+                    <a href="/facilities/view_facility/{{data.id}}" class="mr-2"><i class="fa-solid fa-eye fa-2x text-info"></i></a>
+                    <a href="/facilities/update_facility/{{data.id}}" class="mr-2"><i class="fa-solid fa-pen-to-square fa-2x text-success"></i></a>
+
+<!--                    {% if loggedin_user %}-->
+<!--                        <i class="fa-solid fa-trash-can fa-lg text-danger" onclick='confirm_delete("{{data.id}}")'></i>-->
+<!--                    {% else %}-->
+<!--                        <a href="/signup"><i class="fa-solid fa-trash-can fa-2x text-danger"></i></a>-->
+<!--                    {% endif %}-->
                 </td>
             </tr>
             {% endfor %}

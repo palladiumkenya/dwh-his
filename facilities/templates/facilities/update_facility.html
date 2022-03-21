@@ -12,18 +12,20 @@
             </div>
         {% endif %}
 
-        <form id="facility_form" action="" method="post" class="form-control">
+        <legend class="text-center"><b>{{ title }}</b></legend>
+        <p class="mb-3 text-center"> {{sub_title}}</p>
+
+        <form id="facility_form" action="" method="post" class="form-control mx-auto">
             {% csrf_token %}
-            <legend class="mb-5 mt-3 text-center green_text_color"><b>{{ title }}</b></legend>
-            <hr>
-            <div class="row  mb-5">
-                <div class="col-md-2">
-                    <h6 id="facility_toggle" class="green_text_color">Facility Information</h6>
-                </div>
-                <div id="facility" class="row section mb-4 col-md-8">
-                    <b>Facility Information</b>
+
+            <h6 id="facility_toggle" class="green_text_color">Facility Information</h6>
+            <div class="row  mb-5 form_section shadow-sm bg-white rounded p-3">
+
                   <div class="form-group col-md-3 mb-4">
-                    {{ form.mfl_code|as_crispy_field }}
+                      <div class="d-flex">
+                          {{ form.mfl_code|as_crispy_field }} <i class="fa-solid fa-magnifying-glass search_icon" id="search_icon"></i>
+                      </div>
+
                       <p id="mfl_code_error" style="color:red"></p>
                   </div>
                   <div class="form-group col-md-5 mb-4">
@@ -61,16 +63,14 @@
                             {{ form.IL|as_crispy_field }}
                         </div>
                     </div>
-                </div>
+
             </div>
 
             <div class="hide_element" id="EMR_info">
-                <div class="row  mb-5" >
-                    <div class="col-md-2">
-                        <h6  class="green_text_color">EMR Information</h6>
-                    </div>
-                    <div id="EMR" class="row section mb-4 col-md-8">
-                        <b>EMR Information</b>
+                 <h6  class="green_text_color">EMR Information</h6>
+                <div id="EMR" class="row  mb-5 form_section shadow-sm bg-white rounded p-4" >
+
+<!--                        <b>EMR Information</b>-->
                         <div class="form-group col-md-6 mb-4">
                             {{ form.emr_type|as_crispy_field }}
                         </div>
@@ -90,16 +90,13 @@
                                 {{ form.lab_man_offered|as_crispy_field }}
                             </div>
                         </div>
-                    </div>
                 </div>
             </div>
 
             <div id="MHealth_info">
-                <div class="row mb-5">
-                    <div class="col-md-2">
-                        <h6 id="MHealth_toggle" class="green_text_color">MHealth Information</h6>
-                    </div>
-                    <div  class="row section mb-4 col-md-7">
+                <h6 id="MHealth_toggle" class="green_text_color">MHealth Information</h6>
+                <div class="row mb-5 form_section shadow-sm bg-white rounded p-4">
+                    <div  class="row section mb-4 col-md-10">
                         <b>MHealth Information</b>
                         <div class="d-flex justify-content-between">
                             {{ form.mhealth_ushauri|as_crispy_field }}
@@ -114,11 +111,9 @@
             </div>
 
             <div class="hide_element" id="HTS_info">
-                <div class="row  mb-5">
-                    <div class="col-md-2">
-                        <h6  class="green_text_color">HTS Information</h6>
-                    </div>
-                    <div id="HTS" class="row section mb-4 col-md-8">
+                <h6  class="green_text_color">HTS Information</h6></br>
+                <div id="HTS" class="row  mb-5 form_section shadow-sm bg-white rounded p-4">
+
                         <b>HTS Information</b>
                         <div class="form-group col-md-4 mb-0">
                             {{ form.hts_use|as_crispy_field }}
@@ -129,16 +124,14 @@
                         <div class="form-group col-md-4 mb-0">
                             {{ form.hts_status|as_crispy_field }}
                         </div>
-                    </div>
+
                 </div>
             </div>
 
             <div class="hide_element" id="IL_info">
-                <div class="row mb-5">
-                    <div class="col-md-2">
-                        <h6  class="green_text_color">IL Information</h6>
-                    </div>
-                    <div id="IL" class="row section mb-4 col-md-8">
+                <h6  class="green_text_color">Interoperability(IL) and Integration</h6>
+
+                    <div id="IL" class="row section mb-5 form_section shadow-sm bg-white rounded p-4">
                         <b>IL Information</b>
                         <div class="form-group col-md-3 mb-0">
                             {{ form.webADT_registration|as_crispy_field }}
@@ -159,25 +152,24 @@
                             </div>
                         </div>
                     </div>
-                </div>
+
             </div>
 
              {% if "/facilities/approve_changes/" in request.path %}
-                <div class="row mb-5 d-flex justify-content-center">
-                    <div class="col-md-2 ml-5 inputContainer "><!-- onclick="//confirm_approval()" onclick="//confirm_rejection()"-->
-                        <button name="approve" type="button" value="Approve changes" id="approve_changes" class="btn btn-success" onclick="confirm_approval()">
+                <div class=" d-flex justify-content-around">
+                    <div ><!-- onclick="//confirm_approval()" onclick="//confirm_rejection()"-->
+                        <button name="approve" type="button" value="Approve changes" id="approve_changes" class="btn btn-success px-5" onclick="confirm_approval()">
                             <i class="fa-solid fa-thumbs-up"></i> Approve changes
                         </button>
-                    </div>
-                    <div class="col-md-2">
-                        <button name="discard" type="button" value="Discard changes" id="discard_changes" class="btn btn-danger"  onclick="confirm_rejection()">
+
+                        <button name="discard" type="button" value="Discard changes" id="discard_changes" class="btn btn-danger px-5"  onclick="confirm_rejection()">
                             <i class="fa-solid fa-trash-can"></i> Discard changes
                         </button>
                     </div>
                 </div>
             {% else %}
-                 <div >
-                     <input type="submit" value="Submit" class="btn btn-outline-success" style="margin: 0 auto;">
+                 <div class="d-flex justify-content-center">
+                     <input type="submit" value="Submit" class="btn green_bg_color text-white" style="width:200px;">
                  </div>
 
             {% endif %}
@@ -185,8 +177,69 @@
         </form>
     </section>
 
+<script>
+
+</script>
+
+
 
     <script>
+        $(document).ready(function() {
+          $(window).keydown(function(event){
+            if(event.keyCode == 13) {
+              event.preventDefault();
+              return false;
+            }
+          });
+        });
+
+
+        //$(document).on("keypress", "#id_mfl_code", function(e){
+        //if(e.which == 13){}
+        //    });
+
+        $("#search_icon").click(function() {
+
+            var code_entered = $('#id_mfl_code').val();
+            var base_url = window.location.origin;
+            console.log(code_entered)
+            $.post(base_url + '/facilities/get_mfl_data', {"code": code_entered}, function (data) {
+                //localStorage.setItem('sdp_agencies', JSON.stringify(data)); //store a key/value
+                console.log(data);
+                if ('status' in data){
+                    $("#mfl_code_error").html('That Facility was already added');
+                    $("#id_name").val().prop("disabled",true);
+                    $("#id_owner").val().prop("disabled",true);
+                    $("#id_county").val().prop("disabled",true);
+                    $("#id_sub_county").empty().prop("disabled",true);
+                    $("#id_lat").val().prop("disabled",true);
+                    $("#id_lon").val().prop("disabled",true);
+                    $("#id_partner").val().prop("disabled",true);
+                    $("#id_agency").val().prop("disabled",true);
+                }else{
+                    $("#id_mfl_code").val(data['mfl_code']).prop("disabled",false)
+                    $("#id_name").val(data['name']).prop("disabled",false)
+                    $("#id_owner").val(data['owner']).prop("disabled",false)
+                    $("#id_county").val(data['county']).trigger("change").prop("disabled",false);
+                    $("#id_sub_county").val(data['sub_county']).prop("disabled",false)
+                    $("#id_lat").val(data['lat']).prop("disabled",false);
+                    $("#id_lon").val(data['lon']).prop("disabled",false);
+                    $("#id_partner").val(data['partner']).prop("disabled",false);
+                    $("#id_agency").val(data['agency']).prop("disabled",false);
+                }
+            }).fail(function () {
+                $("#mfl_code_error").html('Facility not available in KHMFL');
+                $("#id_name").val()
+                $("#id_owner").val()
+                $("#id_county").val();
+                $("#id_sub_county").empty();
+                $("#id_lat").val();
+                $("#id_lon").val();
+                $("#id_partner").val();
+                $("#id_agency").val();
+            });
+        });
+
 
         function confirm_approval(){
             Swal.fire({

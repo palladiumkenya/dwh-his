@@ -28,6 +28,7 @@ class Organizations(models.Model):
     name = models.CharField(max_length=100)
     organization_id = models.CharField(max_length=100, default=None, blank=True, null=True)
     access_right = models.CharField(max_length=100, default=None, blank=True, null=True)
+    org_access_right = models.ForeignKey(Partners, on_delete=models.CASCADE, default=None, blank=True, null=True)
 
 
 class Organization_stewards(models.Model):
@@ -59,11 +60,18 @@ class IL_modules(models.Model):
     name = models.CharField(max_length=100)
 
 
-class MFL_codes(models.Model):
-    code = models.IntegerField(default=None, blank=True, null=True)
+class Master_Facility_List(models.Model):
     current_page = models.IntegerField(default=None, blank=True, null=True)
     current_index = models.IntegerField(default=None, blank=True, null=True)
+    mfl_code = models.IntegerField(default=None, blank=True, null=True)
+    name = models.CharField(max_length=100)
+    county = models.ForeignKey(Counties, on_delete=models.CASCADE, default=None)
+    sub_county = models.ForeignKey(Sub_counties, on_delete=models.CASCADE, default=None, blank=True, null=True)
+    lat = models.DecimalField(max_digits=9, decimal_places=6, default=None, blank=True, null=True)
+    lon = models.DecimalField(max_digits=9, decimal_places=6, default=None, blank=True, null=True)
     partner = models.ForeignKey(Partners, on_delete=models.CASCADE, default=None, blank=True, null=True)
+    owner = models.ForeignKey(Owner, on_delete=models.CASCADE, default=None, blank=True, null=True)
+    kmhfltest_id = models.UUIDField(default=None, editable=False, blank=True, null=True)
 
 
 class Facility_Info(models.Model):
@@ -92,9 +100,10 @@ class Edited_Facility_Info(models.Model):
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE)
     facility_info = models.ForeignKey(Facility_Info, on_delete=models.CASCADE)
     date_edited = models.DateTimeField(default=datetime.now, blank=True, null=True)
-    #user_edited = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True, null=True) #id of who edited
+    # user_edited = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, default=None, blank=True, null=True) #id of who edited
     user_edited_name = models.CharField(max_length=100, default=None)
     user_edited_email = models.CharField(max_length=100, default=None)
+
 
 
 class EMR_Info(models.Model):

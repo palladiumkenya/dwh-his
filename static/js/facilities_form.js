@@ -1,5 +1,7 @@
 
 $(document).ready(function() {
+
+
         var base_url = window.location.origin;
 
         // on page load, do the following
